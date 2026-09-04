@@ -1,0 +1,16 @@
+Package: imprint
+Version: 0.1.4
+Architecture: amd64
+Maintainer: Imprint Contributors
+Installed-Size: 40737
+Depends: libxkbcommon0, libxkbcommon-x11-0, libwayland-client0, libfontconfig1, libfreetype6, libx11-6, libasound2 | libasound2t64, libvulkan1, libgl1
+Section: utils
+Priority: optional
+Homepage: https://github.com/googolmo/imprint
+Description: Flash OS images onto USB drives and SD cards
+ Pick an image, pick a removable disk, write, and optionally verify. Native desktop UI plus a CLI.
+Filename: pool/github/googolmo/imprint/v0.1.4/imprint_0.1.4_ubuntu24.04_x86_64.deb
+Size: 17988438
+MD5sum: 5a1a2ea406fd33d47eb325bea91cf3b4
+SHA1: 27eb0aeaf8c5bb4f283dbd0cd7eb78d7ac9f0600
+SHA256: 825b06322666764105ecb0539a54519d65449dcd2f9f34b11a571ef6d5d1f1d6

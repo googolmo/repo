@@ -5,9 +5,9 @@ This tree is a Cloudflare Pages site. Package *bytes* stay on the Imprint
 GitHub Release; this repo only commits indexes, source snippets, and
 per-file ``_redirects`` rules.
 
-  ubuntu/dists/{stable,ubuntu22.04,ubuntu24.04,ubuntu26.04}/
+  ubuntu/dists/{ubuntu22.04,ubuntu24.04,ubuntu26.04}/
   ubuntu/repo.sources + ubuntu/repo.list
-  pacman/{x86_64,aarch64}/repo.db
+  pacman/{x86_64,aarch64}/repo.db + repo.db.sig
   _redirects                 one 302 per .deb / .pkg.tar.*
 
 Pool paths are virtual (not stored in git):
@@ -19,7 +19,8 @@ Pool paths are virtual (not stored in git):
     → https://github.com/<owner>/<repo>/releases/download/<tag>/<asset>
 
 Usage:
-  .github/scripts/update-index.py --apply --github-repo googolmo/imprint
+  .github/scripts/update-index.py --apply --gpg-private-key key.asc
+  GPG_PRIVATE_KEY="$(cat key.asc)" .github/scripts/update-index.py --apply
   .github/scripts/update-index.py --apply --tag v0.1.4 \\
       --github-repo googolmo/imprint --assets-dir /tmp/assets
   .github/scripts/update-index.py --self-test
@@ -41,12 +42,16 @@ import tarfile
 import tempfile
 import urllib.request
 from collections import defaultdict
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from email.utils import format_datetime
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PAGES_BASE = os.environ.get("REPO_BASE_URL", "https://repo-cr4.pages.dev").rstrip("/")
+REPO_KEY_ID = "9DF42B7054F1CB5B"
+REPO_KEY_FINGERPRINT_DISPLAY = "91FD A448 7920 8693 204E  90EE 9DF4 2B70 54F1 CB5B"
 
 DEB_NAME = re.compile(
     r"^imprint_(?P<version>[^_]+)_(?P<suite>ubuntu[\d.]+)_(?P<cpu>x86_64|amd64|arm64|aarch64)\.deb$"
@@ -68,17 +73,10 @@ CPU_TO_PACMAN_ARCH = {
     "aarch64": "aarch64",
 }
 
-ALL_SUITES = ("stable", "ubuntu22.04", "ubuntu24.04", "ubuntu26.04")
+ALL_SUITES = ("ubuntu22.04", "ubuntu24.04", "ubuntu26.04")
+DEFAULT_SUITE = "ubuntu22.04"
 ALL_DEB_ARCHES = ("amd64", "arm64")
 ALL_PACMAN_ARCHES = ("x86_64", "aarch64")
-
-# Suites written for each Ubuntu .deb tag. `stable` is the default APT suite
-# (ubuntu22.04, widest glibc compatibility).
-SUITE_ALIASES = {
-    "ubuntu22.04": ("ubuntu22.04", "stable"),
-    "ubuntu24.04": ("ubuntu24.04",),
-    "ubuntu26.04": ("ubuntu26.04",),
-}
 
 PACKAGES_FIELD_ORDER = (
     "Package",
@@ -304,15 +302,17 @@ def render_pacman_conf(github_repo: str, tag: str) -> str:
     return (
         "# Imprint Pacman repository.\n"
         "# Install:\n"
+        f"#   curl -fsSL {PAGES_BASE}/keys/repo.asc | sudo pacman-key --add -\n"
+        f"#   sudo pacman-key --lsign-key {REPO_KEY_ID}\n"
         f"#   sudo curl -fsSL {PAGES_BASE}/pacman/repo.conf \\\n"
         "#     -o /etc/pacman.d/repo\n"
         "#   echo 'Include = /etc/pacman.d/repo' | sudo tee -a /etc/pacman.conf\n"
         "#   sudo pacman -Sy imprint\n"
         "#\n"
-        "# First Server hosts repo.db (this Cloudflare Pages tree). Package\n"
-        "# files 302 from /pacman/$arch/<file> to the Imprint GitHub Release.\n"
+        "# First Server hosts repo.db + repo.db.sig (this Cloudflare Pages tree).\n"
+        "# Package files 302 from /pacman/$arch/<file> to the Imprint GitHub Release.\n"
         "[repo]\n"
-        "SigLevel = Optional TrustAll\n"
+        "SigLevel = PackageOptional DatabaseRequired\n"
         f"Server = {PAGES_BASE}/pacman/$arch\n"
         f"Server = {release}\n"
     )
@@ -324,11 +324,11 @@ def render_repo_sources() -> str:
         "# Install the keyring first:\n"
         f"#   sudo curl -fsSL {PAGES_BASE}/keys/repo.gpg \\\n"
         "#     -o /usr/share/keyrings/repo-archive-keyring.gpg\n"
-        "# Suite `stable` is the Ubuntu 22.04 / Debian 12+ .deb (widest glibc range).\n"
+        f"# Default suite is {DEFAULT_SUITE} (Debian 12+ / widest glibc range).\n"
         "# Use Suites: ubuntu24.04 or ubuntu26.04 for those newer-glibc builds instead.\n"
         "Types: deb\n"
         f"URIs: {PAGES_BASE}/ubuntu\n"
-        "Suites: stable\n"
+        f"Suites: {DEFAULT_SUITE}\n"
         "Components: main\n"
         "Architectures: amd64 arm64\n"
         "Signed-By: /usr/share/keyrings/repo-archive-keyring.gpg\n"
@@ -341,7 +341,7 @@ def render_repo_list() -> str:
         "# Install the keyring first:\n"
         f"#   sudo curl -fsSL {PAGES_BASE}/keys/repo.gpg \\\n"
         "#     -o /usr/share/keyrings/repo-archive-keyring.gpg\n"
-        f"deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/repo-archive-keyring.gpg] {PAGES_BASE}/ubuntu stable main\n"
+        f"deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/repo-archive-keyring.gpg] {PAGES_BASE}/ubuntu {DEFAULT_SUITE} main\n"
     )
 
 
@@ -368,11 +368,12 @@ directory `/`) so `_redirects` is honoured. GitHub Pages cannot 302 `/pool`.
 | [keys/repo.asc]({PAGES_BASE}/keys/repo.asc) | ASCII-armored |
 | [keys/repo.gpg]({PAGES_BASE}/keys/repo.gpg) | Binary keyring |
 
-- **Fingerprint:** `91FD A448 7920 8693 204E  90EE 9DF4 2B70 54F1 CB5B`
-- **Key ID:** `9DF42B7054F1CB5B`
+- **Fingerprint:** `{REPO_KEY_FINGERPRINT_DISPLAY}`
+- **Key ID:** `{REPO_KEY_ID}`
 
-`update-index` signs `ubuntu/dists/*/InRelease` with the `GPG_PRIVATE_KEY`
-Actions secret (must match `keys/repo.asc`).
+`update-index` signs `ubuntu/dists/*/InRelease` and `pacman/$arch/repo.db`
+with `--gpg-private-key` if given, otherwise `GPG_PRIVATE_KEY` (must match
+`keys/repo.asc`). It does not use the local GnuPG keyring.
 
 ## Debian / Ubuntu (APT)
 
@@ -387,23 +388,25 @@ sudo apt update
 sudo apt install imprint
 ```
 
-`ubuntu/repo.sources` uses suite `stable` (the Ubuntu 22.04 / Debian 12+
-`.deb`). Suites `ubuntu24.04` and `ubuntu26.04` exist for the newer-glibc
+`ubuntu/repo.sources` uses suite `{DEFAULT_SUITE}` (Debian 12+ / widest
+glibc). Suites `ubuntu24.04` and `ubuntu26.04` exist for the newer-glibc
 builds (amd64 and arm64). `Filename` in `Packages` is a per-file pool path
 under `ubuntu/pool/github/`; Cloudflare 302s that exact file to `{release}/`.
 
 ## Arch Linux (Pacman)
 
 ```bash
+curl -fsSL {PAGES_BASE}/keys/repo.asc | sudo pacman-key --add -
+sudo pacman-key --lsign-key {REPO_KEY_ID}
 sudo curl -fsSL {PAGES_BASE}/pacman/repo.conf \\
   -o /etc/pacman.d/repo
 echo -e '\\nInclude = /etc/pacman.d/repo' | sudo tee -a /etc/pacman.conf
 sudo pacman -Sy imprint
 ```
 
-`repo.db` is under `pacman/x86_64/` and `pacman/aarch64/`. Each
-`.pkg.tar.zst` / `.pkg.tar.xz` is 302'd from `/pacman/$arch/<file>` to
-`{release}/`.
+`repo.db` and `repo.db.sig` are under `pacman/x86_64/` and
+`pacman/aarch64/`. Each `.pkg.tar.zst` / `.pkg.tar.xz` is 302'd from
+`/pacman/$arch/<file>` to `{release}/`.
 
 ## Updating the index
 
@@ -418,7 +421,7 @@ Secrets on this repository:
 
 | Secret | Role |
 | --- | --- |
-| `GPG_PRIVATE_KEY` | OpenPGP secret matching `keys/repo.asc`; signs APT `InRelease` |
+| `GPG_PRIVATE_KEY` | OpenPGP secret matching `keys/repo.asc`; signs APT `InRelease` and Pacman `repo.db` (overridden by `--gpg-private-key`) |
 | `GPG_PASSPHRASE` | Optional passphrase for that key |
 
 ## Layout
@@ -430,12 +433,12 @@ Secrets on this repository:
 ├── ubuntu/
 │   ├── repo.sources
 │   ├── repo.list
-│   ├── dists/{{stable,ubuntu22.04,ubuntu24.04,ubuntu26.04}}/
+│   ├── dists/{{ubuntu22.04,ubuntu24.04,ubuntu26.04}}/
 │   │   └── main/{{binary-amd64,binary-arm64,source}}/
 │   └── pool/github/...        virtual; not stored, 302 per file
 └── pacman/
     ├── repo.conf
-    ├── x86_64/                repo.db only
+    ├── x86_64/                repo.db + repo.db.sig
     └── aarch64/
 ```
 """
@@ -638,6 +641,18 @@ def resolve_tag(github_repo: str, tag: str | None) -> str:
     return resolved
 
 
+def emit_github_env(**values: str) -> None:
+    """Append KEY=value lines to GITHUB_ENV when running in Actions."""
+    path = os.environ.get("GITHUB_ENV")
+    if not path:
+        return
+    with open(path, "a", encoding="utf-8") as fh:
+        for key, value in values.items():
+            if any(ch in value for ch in "\r\n"):
+                raise SystemExit(f"refusing to write multiline GitHub env {key}")
+            fh.write(f"{key}={value}\n")
+
+
 def is_index_asset(name: str) -> bool:
     if name.endswith(".sig"):
         return False
@@ -648,27 +663,52 @@ def is_index_asset(name: str) -> bool:
     return name.endswith(".pkg.tar.zst") or name.endswith(".pkg.tar.xz")
 
 
+DOWNLOAD_PATTERNS = (
+    "imprint_*.deb",
+    "imprint_*_archlinux_*.pkg.tar.zst",
+    "imprint_*_archlinux_*.pkg.tar.xz",
+)
+
+
+def _gh_pattern_missing(output: str) -> bool:
+    text = output.lower()
+    return "no assets match" in text or "no assets to download" in text
+
+
 def download_assets(github_repo: str, tag: str, dest: Path) -> None:
     dest.mkdir(parents=True, exist_ok=True)
     if shutil.which("gh"):
-        cmd = [
-            "gh",
-            "release",
-            "download",
-            tag,
-            "--repo",
-            github_repo,
-            "--dir",
-            str(dest),
-            "--pattern",
-            "imprint_*.deb",
-            "--pattern",
-            "imprint_*_archlinux_*.pkg.tar.zst",
-            "--pattern",
-            "imprint_*_archlinux_*.pkg.tar.xz",
-            "--clobber",
-        ]
-        subprocess.check_call(cmd)
+        # One pattern per call so a missing ubuntu22.04/24.04/26.04 .deb
+        # (or a missing pacman arch) does not fail the whole download.
+        for pattern in DOWNLOAD_PATTERNS:
+            cmd = [
+                "gh",
+                "release",
+                "download",
+                tag,
+                "--repo",
+                github_repo,
+                "--dir",
+                str(dest),
+                "--pattern",
+                pattern,
+                "--clobber",
+            ]
+            proc = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+            if proc.returncode == 0:
+                continue
+            out = (proc.stdout or "").strip()
+            if _gh_pattern_missing(out):
+                print(f"no release assets match {pattern!r}; skipping")
+                continue
+            raise SystemExit(f"gh release download failed for {pattern}: {out}")
+        if not any(dest.iterdir()):
+            raise SystemExit(f"no .deb / .pkg.tar.* assets on {github_repo} {tag}")
         return
     release = github_api(f"repos/{github_repo}/releases/tags/{tag}")
     assets = release.get("assets") or []
@@ -691,7 +731,8 @@ def collect_debs(assets_dir: Path, *, github_repo: str, tag: str) -> list[dict[s
     stanzas: list[dict[str, str]] = []
     debs = sorted(assets_dir.glob("imprint_*.deb"))
     if not debs:
-        raise SystemExit(f"no imprint_*.deb files in {assets_dir}")
+        print(f"no imprint_*.deb files in {assets_dir}; skipping ubuntu packages")
+        return []
     expected_ver = version_from_tag(tag)
     for path in debs:
         file_ver, suite, cpu = parse_deb_filename(path.name)
@@ -699,7 +740,7 @@ def collect_debs(assets_dir: Path, *, github_repo: str, tag: str) -> list[dict[s
             raise SystemExit(
                 f"{path.name}: version {file_ver} does not match tag {tag}"
             )
-        if suite not in SUITE_ALIASES:
+        if suite not in ALL_SUITES:
             raise SystemExit(f"{path.name}: unsupported ubuntu suite {suite}")
         size, md5, sha1, sha256 = hash_file(path)
         fields = dpkg_control(path)
@@ -812,21 +853,90 @@ def gpg_secret_fingerprints() -> set[str]:
     return found
 
 
-def can_sign(repo_dir: Path) -> bool:
-    pub = gpg_public_fingerprint(repo_dir / "keys" / "repo.asc")
-    if not pub:
-        return False
-    return pub in gpg_secret_fingerprints()
+def resolve_private_key_material(key_path: Path | None) -> tuple[str | None, str]:
+    """Prefer --gpg-private-key; fall back to GPG_PRIVATE_KEY. Never the local keyring."""
+    if key_path is not None:
+        path = key_path.expanduser()
+        if not path.is_file():
+            raise SystemExit(f"GPG private key file not found: {path}")
+        text = path.read_text(encoding="utf-8").strip()
+        if not text:
+            raise SystemExit(f"GPG private key file is empty: {path}")
+        return text, str(path)
+    env = os.environ.get("GPG_PRIVATE_KEY", "").strip()
+    if env:
+        return env, "GPG_PRIVATE_KEY"
+    return None, ""
 
 
-def gpg_sign_release(release_path: Path, *, passphrase: str | None) -> None:
-    suite_dir = release_path.parent
-    inrelease = suite_dir / "InRelease"
-    detach = suite_dir / "Release.gpg"
-    for leftover in (inrelease, detach):
-        if leftover.exists():
-            leftover.unlink()
-    base = [
+@contextmanager
+def gpg_passphrase_extra(passphrase: str | None) -> Iterator[list[str]]:
+    env_file = os.environ.get("GPG_PASSPHRASE_FILE", "").strip()
+    if env_file:
+        yield ["--passphrase-file", env_file]
+        return
+    if not passphrase:
+        yield []
+        return
+    handle = tempfile.NamedTemporaryFile("w", delete=False, prefix="gpg-pass-")
+    handle.write(passphrase)
+    handle.close()
+    pass_file = Path(handle.name)
+    os.chmod(pass_file, 0o600)
+    try:
+        yield ["--passphrase-file", str(pass_file)]
+    finally:
+        pass_file.unlink(missing_ok=True)
+
+
+@contextmanager
+def gpg_signing_home(key_material: str, *, pub_asc: Path) -> Iterator[str]:
+    """Import the supplied secret into an isolated GNUPGHOME and yield its fingerprint."""
+    if not pub_asc.is_file():
+        raise SystemExit(f"public key not found: {pub_asc}")
+    if not key_material.endswith("\n"):
+        key_material += "\n"
+    prev = os.environ.get("GNUPGHOME")
+    tmp = Path(tempfile.mkdtemp(prefix="gnupg-sign-"))
+    os.chmod(tmp, 0o700)
+    os.environ["GNUPGHOME"] = str(tmp)
+    try:
+        imported = subprocess.run(
+            ["gpg", "--batch", "--import"],
+            input=key_material.encode("utf-8"),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        if imported.returncode != 0:
+            detail = imported.stdout.decode("utf-8", "replace").strip()
+            raise SystemExit(f"gpg failed to import private key: {detail}")
+        pub = gpg_public_fingerprint(pub_asc)
+        if not pub:
+            raise SystemExit(f"could not read fingerprint from {pub_asc}")
+        if pub not in gpg_secret_fingerprints():
+            raise SystemExit(
+                f"private key does not match {pub_asc} (expected fingerprint {pub})"
+            )
+        yield pub
+    except FileNotFoundError as exc:
+        raise SystemExit("gpg is required to sign repository indexes") from exc
+    finally:
+        subprocess.run(
+            ["gpgconf", "--kill", "all"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        if prev is None:
+            os.environ.pop("GNUPGHOME", None)
+        else:
+            os.environ["GNUPGHOME"] = prev
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def _gpg_sign_argv(fingerprint: str, extra: list[str]) -> list[str]:
+    return [
         "gpg",
         "--batch",
         "--yes",
@@ -834,35 +944,79 @@ def gpg_sign_release(release_path: Path, *, passphrase: str | None) -> None:
         "loopback",
         "--digest-algo",
         "SHA256",
+        "--local-user",
+        fingerprint,
+        *extra,
     ]
-    pass_file: Path | None = None
-    extra: list[str] = []
-    env_file = os.environ.get("GPG_PASSPHRASE_FILE", "").strip()
-    if env_file:
-        extra += ["--passphrase-file", env_file]
-    elif passphrase:
-        handle = tempfile.NamedTemporaryFile("w", delete=False, prefix="gpg-pass-")
-        handle.write(passphrase)
-        handle.close()
-        pass_file = Path(handle.name)
-        os.chmod(pass_file, 0o600)
-        extra += ["--passphrase-file", str(pass_file)]
-    try:
-        subprocess.check_call(
-            base + extra + ["--clearsign", "-o", str(inrelease), str(release_path)]
-        )
-        subprocess.check_call(
-            base + extra + ["--detach-sign", "--armor", "-o", str(detach), str(release_path)]
-        )
-    except FileNotFoundError as exc:
-        raise SystemExit("gpg is required to sign APT InRelease") from exc
-    except subprocess.CalledProcessError as exc:
-        raise SystemExit(f"gpg failed signing {release_path}") from exc
-    finally:
-        if pass_file is not None:
-            pass_file.unlink(missing_ok=True)
+
+
+def gpg_sign_release(
+    release_path: Path, *, fingerprint: str, passphrase: str | None
+) -> None:
+    suite_dir = release_path.parent
+    inrelease = suite_dir / "InRelease"
+    detach = suite_dir / "Release.gpg"
+    for leftover in (inrelease, detach):
+        if leftover.exists():
+            leftover.unlink()
+    with gpg_passphrase_extra(passphrase) as extra:
+        try:
+            subprocess.check_call(
+                _gpg_sign_argv(fingerprint, extra)
+                + ["--clearsign", "-o", str(inrelease), str(release_path)]
+            )
+            subprocess.check_call(
+                _gpg_sign_argv(fingerprint, extra)
+                + [
+                    "--detach-sign",
+                    "--armor",
+                    "-o",
+                    str(detach),
+                    str(release_path),
+                ]
+            )
+        except FileNotFoundError as exc:
+            raise SystemExit("gpg is required to sign APT InRelease") from exc
+        except subprocess.CalledProcessError as exc:
+            raise SystemExit(f"gpg failed signing {release_path}") from exc
     subprocess.check_call(["gpg", "--batch", "--verify", str(inrelease)])
     print(f"signed {inrelease}")
+
+
+def gpg_sign_detached(
+    path: Path, *, fingerprint: str, passphrase: str | None, armor: bool = False
+) -> Path:
+    dest = path.with_name(path.name + ".sig")
+    if dest.exists():
+        dest.unlink()
+    argv = ["--detach-sign", "-o", str(dest), str(path)]
+    if armor:
+        argv = ["--detach-sign", "--armor", "-o", str(dest), str(path)]
+    with gpg_passphrase_extra(passphrase) as extra:
+        try:
+            subprocess.check_call(_gpg_sign_argv(fingerprint, extra) + argv)
+        except FileNotFoundError as exc:
+            raise SystemExit(f"gpg is required to sign {path}") from exc
+        except subprocess.CalledProcessError as exc:
+            raise SystemExit(f"gpg failed signing {path}") from exc
+    subprocess.check_call(["gpg", "--batch", "--verify", str(dest), str(path)])
+    print(f"signed {dest}")
+    return dest
+
+
+def gpg_sign_pacman_db(
+    dest: Path, *, fingerprint: str, passphrase: str | None
+) -> None:
+    db = dest / "repo.db"
+    tarball = dest / "repo.db.tar.gz"
+    db_sig = gpg_sign_detached(db, fingerprint=fingerprint, passphrase=passphrase)
+    if tarball.exists():
+        tar_sig = tarball.with_name(tarball.name + ".sig")
+        if tarball.read_bytes() == db.read_bytes():
+            shutil.copyfile(db_sig, tar_sig)
+            print(f"signed {tar_sig}")
+        else:
+            gpg_sign_detached(tarball, fingerprint=fingerprint, passphrase=passphrase)
 
 
 def clear_old_dists(dist_root: Path) -> None:
@@ -870,6 +1024,10 @@ def clear_old_dists(dist_root: Path) -> None:
         return
     for child in dist_root.iterdir():
         if not child.is_dir():
+            continue
+        if child.name not in ALL_SUITES:
+            shutil.rmtree(child)
+            print(f"removed leftover ubuntu/dists/{child.name}")
             continue
         for path in child.rglob("*"):
             if path.is_file() and path.name != ".gitkeep":
@@ -965,6 +1123,10 @@ def write_pacman_db(dest: Path, packages: list[tuple[str, str]]) -> None:
     (dest / "repo.db").write_bytes(data)
     for leftover in dest.glob("*.pkg.tar.*"):
         leftover.unlink()
+    for name in ("repo.db.sig", "repo.db.tar.gz.sig"):
+        sig = dest / name
+        if sig.exists() or sig.is_symlink():
+            sig.unlink()
 
 
 def collect_pkg_assets(assets_dir: Path) -> list[tuple[str, Path]]:
@@ -1000,10 +1162,26 @@ def apply(
     assets_dir: Path | None,
     passphrase: str | None,
     skip_sign: bool,
-) -> None:
+    gpg_private_key: Path | None,
+) -> str:
     github_repo = github_repo.strip().strip("/")
     resolved = resolve_tag(github_repo, tag)
     release_base_url(github_repo, resolved)
+    emit_github_env(TAG=resolved)
+    print(f"tag={resolved} repo={github_repo}")
+
+    key_material: str | None = None
+    key_source = ""
+    if skip_sign:
+        print("skipping APT InRelease and Pacman repo.db signatures (--skip-sign)")
+    else:
+        key_material, key_source = resolve_private_key_material(gpg_private_key)
+        if not key_material:
+            raise SystemExit(
+                "signing requires --gpg-private-key or GPG_PRIVATE_KEY "
+                "(pass --skip-sign to write unsigned indexes)"
+            )
+        print(f"signing with private key from {key_source}")
 
     tmp: tempfile.TemporaryDirectory[str] | None = None
     if assets_dir is None:
@@ -1020,18 +1198,10 @@ def apply(
         clear_old_dists(dist_root)
         by_suite: dict[str, list[dict[str, str]]] = {suite: [] for suite in ALL_SUITES}
         for stanza in stanzas:
-            origin = stanza["_suite"]
-            for suite in SUITE_ALIASES[origin]:
-                by_suite[suite].append(stanza)
-        sign = (not skip_sign) and can_sign(repo_dir)
-        if skip_sign:
-            print("skipping APT InRelease (--skip-sign)")
-        elif not sign:
-            print("skipping APT InRelease (no matching GPG_PRIVATE_KEY in the keyring)")
+            by_suite[stanza["_suite"]].append(stanza)
         for suite in ALL_SUITES:
-            write_suite(dist_root, suite, by_suite[suite])
-            if sign:
-                gpg_sign_release(dist_root / suite / "Release", passphrase=passphrase)
+            if not by_suite[suite]:
+                print(f"no .deb assets for {suite}; writing empty suite")
 
         deb_names = [Path(s["Filename"]).name for s in stanzas]
         pkg_rows = collect_pkg_assets(assets_dir)
@@ -1086,9 +1256,33 @@ def apply(
                 sha256=sha256,
             )
             by_arch[arch].append((f"{name}-{version}", desc))
-        for arch in ALL_PACMAN_ARCHES:
-            write_pacman_db(pacman_dir / arch, by_arch[arch])
-            print(f"wrote pacman/{arch}/repo.db ({len(by_arch[arch])} package(s))")
+
+        def write_indexes(fingerprint: str | None) -> None:
+            for suite in ALL_SUITES:
+                write_suite(dist_root, suite, by_suite[suite])
+                if fingerprint is not None:
+                    gpg_sign_release(
+                        dist_root / suite / "Release",
+                        fingerprint=fingerprint,
+                        passphrase=passphrase,
+                    )
+            for arch in ALL_PACMAN_ARCHES:
+                write_pacman_db(pacman_dir / arch, by_arch[arch])
+                print(f"wrote pacman/{arch}/repo.db ({len(by_arch[arch])} package(s))")
+                if fingerprint is not None:
+                    gpg_sign_pacman_db(
+                        pacman_dir / arch,
+                        fingerprint=fingerprint,
+                        passphrase=passphrase,
+                    )
+
+        if key_material is not None:
+            with gpg_signing_home(
+                key_material, pub_asc=repo_dir / "keys" / "repo.asc"
+            ) as fingerprint:
+                write_indexes(fingerprint)
+        else:
+            write_indexes(None)
 
         sources = repo_dir / "ubuntu" / "repo.sources"
         sources.write_text(render_repo_sources(), encoding="utf-8")
@@ -1104,6 +1298,7 @@ def apply(
     finally:
         if tmp is not None:
             tmp.cleanup()
+    return resolved
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -1132,9 +1327,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="owner/name of the Imprint repository",
     )
     parser.add_argument(
+        "--gpg-private-key",
+        type=Path,
+        help="ASCII-armored OpenPGP secret (overrides GPG_PRIVATE_KEY)",
+    )
+    parser.add_argument(
         "--skip-sign",
         action="store_true",
-        help="Do not sign ubuntu/dists/*/InRelease even if a matching secret key exists",
+        help="Do not sign ubuntu/dists/*/InRelease or pacman/*/repo.db",
     )
     parser.add_argument("--self-test", action="store_true")
     return parser.parse_args(argv)
@@ -1219,11 +1419,11 @@ def _self_test() -> None:
         "main/source/Sources": (0, "src", "src1", "src256"),
     }
     release = render_release(
-        suite="stable",
+        suite=DEFAULT_SUITE,
         files=hashed,
         date=datetime(2026, 9, 4, tzinfo=timezone.utc),
     )
-    if "Suite: stable" not in release:
+    if f"Suite: {DEFAULT_SUITE}" not in release:
         raise SystemExit("Release missing suite")
     if "Architectures: amd64 arm64" not in release:
         raise SystemExit("Release missing architectures")
@@ -1257,13 +1457,19 @@ def _self_test() -> None:
         raise SystemExit("pacman must list the GitHub Release as package Server")
     if "/releases/latest/download/" in conf:
         raise SystemExit("must not use latest redirect")
+    if "SigLevel = PackageOptional DatabaseRequired\n" not in conf:
+        raise SystemExit("pacman must require a signed repo.db")
+    if f"pacman-key --lsign-key {REPO_KEY_ID}" not in conf:
+        raise SystemExit("pacman snippet must locally sign the repo key")
 
     sources = render_repo_sources()
     if f"URIs: {PAGES_BASE}/ubuntu\n" not in sources:
         raise SystemExit("repo.sources URI mismatch")
     if "Architectures: amd64 arm64" not in sources:
         raise SystemExit("repo.sources missing architectures")
-    if f"deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/repo-archive-keyring.gpg] {PAGES_BASE}/ubuntu stable main\n" not in render_repo_list():
+    if f"Suites: {DEFAULT_SUITE}\n" not in sources:
+        raise SystemExit("repo.sources missing default suite")
+    if f"deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/repo-archive-keyring.gpg] {PAGES_BASE}/ubuntu {DEFAULT_SUITE} main\n" not in render_repo_list():
         raise SystemExit("repo.list mismatch")
 
     control_text = (
@@ -1285,6 +1491,22 @@ def _self_test() -> None:
         parsed = deb_control_from_ar(deb_path)
         if parsed["Package"] != "imprint" or parsed["Version"] != "0.1.4":
             raise SystemExit(f"deb_control_from_ar failed: {parsed}")
+
+        empty_dir = root / "no-debs"
+        empty_dir.mkdir()
+        if collect_debs(empty_dir, github_repo=repo, tag=tag) != []:
+            raise SystemExit("collect_debs must ignore a missing ubuntu .deb set")
+
+        only_2204 = root / "only-ubuntu22.04"
+        only_2204.mkdir()
+        shutil.copyfile(deb_path, only_2204 / deb_path.name)
+        subset = collect_debs(only_2204, github_repo=repo, tag=tag)
+        if len(subset) != 1 or subset[0]["_suite"] != "ubuntu22.04":
+            raise SystemExit("collect_debs must accept a subset of ubuntu suites")
+        if _gh_pattern_missing("no assets match the file pattern") is False:
+            raise SystemExit("must treat gh 'no assets match' as a missing pattern")
+        if _gh_pattern_missing("HTTP 403 forbidden"):
+            raise SystemExit("must not ignore real gh download failures")
 
         dist = root / "ubuntu" / "dists"
         write_suite(dist, "ubuntu26.04", [])
@@ -1329,15 +1551,175 @@ def _self_test() -> None:
         if "imprint-0.1.4-1/desc" not in names:
             raise SystemExit(f"repo.db missing desc: {names}")
 
-        (root / "ubuntu" / "dists" / "stable").mkdir(parents=True, exist_ok=True)
-        (root / "ubuntu" / "dists" / "stable" / ".gitkeep").write_text("")
+        leftover = dist / "stable"
+        leftover.mkdir(parents=True, exist_ok=True)
+        (leftover / "Release").write_text("gone", encoding="utf-8")
+        clear_old_dists(dist)
+        if leftover.exists():
+            raise SystemExit("clear_old_dists must drop unknown suites")
+
+        (root / "ubuntu" / "dists" / DEFAULT_SUITE).mkdir(parents=True, exist_ok=True)
+        (root / "ubuntu" / "dists" / DEFAULT_SUITE / ".gitkeep").write_text("")
         (root / "_redirects").write_text(redirects)
         (root / "pacman").mkdir(exist_ok=True)
         (root / "pacman" / "repo.conf").write_text(conf)
         if (root / "ubuntu" / "pool" / "main").exists():
             raise SystemExit("must not materialise pool/main debs")
 
+        env_file = root / "github.env"
+        prev_github_env = os.environ.get("GITHUB_ENV")
+        os.environ["GITHUB_ENV"] = str(env_file)
+        try:
+            emit_github_env(TAG="v0.1.4")
+        finally:
+            if prev_github_env is None:
+                os.environ.pop("GITHUB_ENV", None)
+            else:
+                os.environ["GITHUB_ENV"] = prev_github_env
+        if env_file.read_text(encoding="utf-8") != "TAG=v0.1.4\n":
+            raise SystemExit("emit_github_env did not write TAG")
+
+        keyfile = root / "specified.asc"
+        keyfile.write_text("FILEKEY\n", encoding="utf-8")
+        prev_env = os.environ.get("GPG_PRIVATE_KEY")
+        os.environ["GPG_PRIVATE_KEY"] = "ENVKEY"
+        try:
+            material, source = resolve_private_key_material(keyfile)
+            if material != "FILEKEY" or source != str(keyfile):
+                raise SystemExit(
+                    "must prefer --gpg-private-key over GPG_PRIVATE_KEY"
+                )
+            material, source = resolve_private_key_material(None)
+            if material != "ENVKEY" or source != "GPG_PRIVATE_KEY":
+                raise SystemExit("must fall back to GPG_PRIVATE_KEY")
+            missing = root / "missing.asc"
+            try:
+                resolve_private_key_material(missing)
+            except SystemExit:
+                pass
+            else:
+                raise SystemExit("missing specified key must not fall back to env")
+            del os.environ["GPG_PRIVATE_KEY"]
+            material, source = resolve_private_key_material(None)
+            if material is not None or source:
+                raise SystemExit("must not use a local keyring private key")
+        finally:
+            if prev_env is None:
+                os.environ.pop("GPG_PRIVATE_KEY", None)
+            else:
+                os.environ["GPG_PRIVATE_KEY"] = prev_env
+
+        _self_test_signing(root)
+
     print("self-test ok")
+
+
+def _self_test_signing(root: Path) -> None:
+    if shutil.which("gpg") is None:
+        print("self-test: gpg not found, skipping sign tests")
+        return
+    prev_home = os.environ.get("GNUPGHOME")
+    gen_home = Path(tempfile.mkdtemp(prefix="gnupg-test-gen-"))
+    os.chmod(gen_home, 0o700)
+    os.environ["GNUPGHOME"] = str(gen_home)
+    try:
+        batch = (
+            "Key-Type: EDDSA\n"
+            "Key-Curve: Ed25519\n"
+            "Key-Usage: sign\n"
+            "Name-Real: MOSUMI test\n"
+            "Name-Email: test@example.com\n"
+            "Expire-Date: 0\n"
+            "%no-protection\n"
+            "%commit\n"
+        )
+        gen = subprocess.run(
+            ["gpg", "--batch", "--generate-key"],
+            input=batch.encode("utf-8"),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        if gen.returncode != 0:
+            raise SystemExit(
+                "gpg --generate-key failed:\n"
+                + gen.stdout.decode("utf-8", "replace")
+            )
+        pub = subprocess.check_output(
+            ["gpg", "--batch", "--armor", "--export", "test@example.com"]
+        )
+        priv = subprocess.check_output(
+            ["gpg", "--batch", "--armor", "--export-secret-keys", "test@example.com"]
+        )
+    finally:
+        subprocess.run(
+            ["gpgconf", "--kill", "all"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        if prev_home is None:
+            os.environ.pop("GNUPGHOME", None)
+        else:
+            os.environ["GNUPGHOME"] = prev_home
+        shutil.rmtree(gen_home, ignore_errors=True)
+
+    pub_asc = root / "keys" / "repo.asc"
+    pub_asc.parent.mkdir(parents=True, exist_ok=True)
+    pub_asc.write_bytes(pub)
+    release_path = root / "ubuntu" / "dists" / DEFAULT_SUITE / "Release"
+    release_path.parent.mkdir(parents=True, exist_ok=True)
+    release_path.write_text("Origin: test\n", encoding="utf-8")
+    db_dir = root / "pacman" / "x86_64"
+    db_dir.mkdir(parents=True, exist_ok=True)
+    (db_dir / "repo.db").write_bytes(b"db")
+    (db_dir / "repo.db.tar.gz").write_bytes(b"db")
+
+    env_key = root / "env.asc"
+    env_key.write_text("ENV-SHOULD-NOT-WIN\n", encoding="utf-8")
+    specified = root / "specified-real.asc"
+    specified.write_bytes(priv)
+    prev_env = os.environ.get("GPG_PRIVATE_KEY")
+    os.environ["GPG_PRIVATE_KEY"] = env_key.read_text(encoding="utf-8")
+    try:
+        material, source = resolve_private_key_material(specified)
+        if source != str(specified):
+            raise SystemExit("signing test must use the specified private key")
+        with gpg_signing_home(material or "", pub_asc=pub_asc) as fingerprint:
+            gpg_sign_release(
+                release_path, fingerprint=fingerprint, passphrase=None
+            )
+            gpg_sign_pacman_db(
+                db_dir, fingerprint=fingerprint, passphrase=None
+            )
+    finally:
+        if prev_env is None:
+            os.environ.pop("GPG_PRIVATE_KEY", None)
+        else:
+            os.environ["GPG_PRIVATE_KEY"] = prev_env
+
+    if not (release_path.parent / "InRelease").is_file():
+        raise SystemExit("APT InRelease was not signed")
+    if not (release_path.parent / "Release.gpg").is_file():
+        raise SystemExit("APT Release.gpg was not signed")
+    if not (db_dir / "repo.db.sig").is_file():
+        raise SystemExit("Pacman repo.db.sig was not signed")
+    if not (db_dir / "repo.db.tar.gz.sig").is_file():
+        raise SystemExit("Pacman repo.db.tar.gz.sig was not signed")
+
+    os.environ["GPG_PRIVATE_KEY"] = priv.decode("utf-8")
+    try:
+        material, source = resolve_private_key_material(None)
+        if source != "GPG_PRIVATE_KEY":
+            raise SystemExit("must import from GPG_PRIVATE_KEY when no file is given")
+        with gpg_signing_home(material or "", pub_asc=pub_asc) as fingerprint:
+            if not fingerprint:
+                raise SystemExit("GPG_PRIVATE_KEY did not import")
+    finally:
+        if prev_env is None:
+            os.environ.pop("GPG_PRIVATE_KEY", None)
+        else:
+            os.environ["GPG_PRIVATE_KEY"] = prev_env
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1358,6 +1740,7 @@ def main(argv: list[str] | None = None) -> int:
         assets_dir=args.assets_dir,
         passphrase=passphrase,
         skip_sign=args.skip_sign,
+        gpg_private_key=args.gpg_private_key,
     )
     return 0
 

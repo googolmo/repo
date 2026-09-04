@@ -1,0 +1,49 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+Origin: MOSUMI
+Label: MOSUMI
+Suite: ubuntu26.04
+Codename: ubuntu26.04
+Date: Fri, 04 Sep 2026 06:38:57 GMT
+Architectures: amd64 arm64
+Components: main
+Description: MOSUMI Linux package repository
+Acquire-By-Hash: no
+MD5Sum:
+ d41d8cd98f00b204e9800998ecf8427e                0 main/binary-amd64/Packages
+ fa9ac5a217b5547bc7dd4e6e894fe135               20 main/binary-amd64/Packages.gz
+ d41d8cd98f00b204e9800998ecf8427e                0 main/binary-arm64/Packages
+ fa9ac5a217b5547bc7dd4e6e894fe135               20 main/binary-arm64/Packages.gz
+ d41d8cd98f00b204e9800998ecf8427e                0 main/source/Sources
+ fa9ac5a217b5547bc7dd4e6e894fe135               20 main/source/Sources.gz
+SHA1:
+ da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/binary-amd64/Packages
+ 89892054d65b8b0dd6a081b33a97b6f2bd1fa267               20 main/binary-amd64/Packages.gz
+ da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/binary-arm64/Packages
+ 89892054d65b8b0dd6a081b33a97b6f2bd1fa267               20 main/binary-arm64/Packages.gz
+ da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/source/Sources
+ 89892054d65b8b0dd6a081b33a97b6f2bd1fa267               20 main/source/Sources.gz
+SHA256:
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/binary-amd64/Packages
+ 9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64               20 main/binary-amd64/Packages.gz
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/binary-arm64/Packages
+ 9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64               20 main/binary-arm64/Packages.gz
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/source/Sources
+ 9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64               20 main/source/Sources.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEiRq3fLeIlPsLT7tUQzsdnT+T45EFAmqaZ4EACgkQQzsdnT+T
+45GPiBAAx8nq15HbD1RGHW5rRM4Dp/TeSurna0iOt6/Kjhn0mcrggDZwZM7X8PrU
+2Q/3qNT+mCCRI+Asy7anTlPnWrR5N+VVd0Z32eHreeQQLLkPK9Q4cd1QcCW73S0z
+FTRx6EWuW+TfahMQnBE+HG10MuhEuUsdOC+wfGnRNCOdXT1S+YYPIDbIziWUQOv2
+AYtc8l4WgzuuA3SJkH129t9OuryjJR4CtvC6WKe9AkxnkVlmhM+Du8L5AMzyMeKa
+LRbF0xYlK9tsFiqZK4bb3gI67KbUS6j4rm+LKQ9XswIr8/AMc3FzxwRMrVmW7SSX
+2gufoKd2jd9pYqf1sEZXYSQd1b+n93S3O075JNWVx0QVru47xZ1y5hREdLbrlnl9
+2r3IulerI2n14R/Cjmvc9Rxm+qU1pT+5O6tZfMl53otit20FKo0TH1hRr4wbBXDP
+vdBeg5rjfowi0+sGqDXLFFK2BVBwMPoEp866kWligOFe23HzC+ykOWLizpHxleR/
+2P4B2AHeuiP6/a3C+oHMYYT8NYvv77KU9r0jNOi+BAbmOUE6TBPCny6VTZ9BAFbs
+He/QkwZHA52xxWxfVQ3s0rI9dtLDyq4iRJYnPYG81r24p1DREraoFt8G25jIaFYR
+hxC3hP0tHjvakDbvtasojNUpa+isXkxSE+iGLN0mSysRV4mHdB4=
+=pLvM
+-----END PGP SIGNATURE-----

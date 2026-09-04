@@ -2,114 +2,96 @@
 
 APT (Debian / Ubuntu) and Pacman (Arch Linux) **indexes** for Imprint, served
 from Cloudflare Pages. Package files are **not** stored in this git tree:
-Cloudflare 302s `.deb` (and Pacman `.pkg.tar.zst`) downloads to the matching
-Imprint [GitHub Release](https://github.com/googolmo/imprint/releases) asset.
+Cloudflare 302s each `.deb` and Pacman `.pkg.tar.*` to the matching
+[GitHub Release](https://github.com/googolmo/imprint/releases/tag/v0.1.4) asset.
 
-**Base URL:** https://googolmo.github.io/repo/
+**Base URL:** https://repo-cr4.pages.dev/
+
+Current Imprint release: `v0.1.4` → `https://github.com/googolmo/imprint/releases/download/v0.1.4/`
 
 Connect this repository to **Cloudflare Pages** (build command empty, output
 directory `/`) so `_redirects` is honoured. GitHub Pages cannot 302 `/pool`.
-
-The `update-index` GitHub Action rebuilds `ubuntu/dists/*/Packages`, signs
-`InRelease` with `GPG_PRIVATE_KEY`, rewrites `_redirects` + `pacman/repo.conf`,
-and commits. Imprint's Release workflow dispatches that action when a tag
-build finishes.
 
 ## Public key
 
 | File | Format |
 | --- | --- |
-| [keys/repo.asc](https://googolmo.github.io/repo/keys/repo.asc) | ASCII-armored |
-| [keys/repo.gpg](https://googolmo.github.io/repo/keys/repo.gpg) | Binary keyring |
+| [keys/repo.asc](https://repo-cr4.pages.dev/keys/repo.asc) | ASCII-armored |
+| [keys/repo.gpg](https://repo-cr4.pages.dev/keys/repo.gpg) | Binary keyring |
 
 - **Fingerprint:** `91FD A448 7920 8693 204E  90EE 9DF4 2B70 54F1 CB5B`
 - **Key ID:** `9DF42B7054F1CB5B`
 
-Verify after download:
-
-```bash
-gpg --show-keys --with-fingerprint keys/repo.asc
-```
-
-`update-index` signs `ubuntu/dists/*/InRelease` with the `GPG_PRIVATE_KEY`
-Actions secret (must match `keys/repo.asc`). Optional `GPG_PASSPHRASE` if the
-key is encrypted.
+`update-index` signs `ubuntu/dists/*/InRelease` and `pacman/$arch/repo.db`
+with `--gpg-private-key` if given, otherwise `GPG_PRIVATE_KEY` (must match
+`keys/repo.asc`). It does not use the local GnuPG keyring.
 
 ## Debian / Ubuntu (APT)
 
 ```bash
 sudo mkdir -p /usr/share/keyrings
-sudo curl -fsSL https://googolmo.github.io/repo/keys/repo.gpg \
+sudo curl -fsSL https://repo-cr4.pages.dev/keys/repo.gpg \
   -o /usr/share/keyrings/repo-archive-keyring.gpg
 sudo chmod 644 /usr/share/keyrings/repo-archive-keyring.gpg
-sudo curl -fsSL https://googolmo.github.io/repo/ubuntu/repo.sources \
+sudo curl -fsSL https://repo-cr4.pages.dev/ubuntu/repo.sources \
   -o /etc/apt/sources.list.d/repo.sources
 sudo apt update
 sudo apt install imprint
 ```
 
-On older APT setups, install the one-line list instead:
-
-```bash
-sudo curl -fsSL https://googolmo.github.io/repo/ubuntu/repo.list \
-  -o /etc/apt/sources.list.d/repo.list
-sudo apt update
-```
-
-`ubuntu/repo.sources` uses suite `stable` (Ubuntu 22.04 / Debian 12+ `.deb`).
-Suites `ubuntu24.04` and `ubuntu26.04` exist for the newer-glibc builds.
-`Filename` in `Packages` is under `ubuntu/pool/github/`; Cloudflare redirects
-it to `https://github.com/googolmo/imprint/releases/download/<tag>/`.
+`ubuntu/repo.sources` uses suite `ubuntu22.04` (Debian 12+ / widest
+glibc). Suites `ubuntu24.04` and `ubuntu26.04` exist for the newer-glibc
+builds (amd64 and arm64). `Filename` in `Packages` is a per-file pool path
+under `ubuntu/pool/github/`; Cloudflare 302s that exact file to `https://github.com/googolmo/imprint/releases/download/v0.1.4/`.
 
 ## Arch Linux (Pacman)
 
 ```bash
-sudo curl -fsSL https://googolmo.github.io/repo/pacman/repo.conf \
+curl -fsSL https://repo-cr4.pages.dev/keys/repo.asc | sudo pacman-key --add -
+sudo pacman-key --lsign-key 9DF42B7054F1CB5B
+sudo curl -fsSL https://repo-cr4.pages.dev/pacman/repo.conf \
   -o /etc/pacman.d/repo
 echo -e '\nInclude = /etc/pacman.d/repo' | sudo tee -a /etc/pacman.conf
 sudo pacman -Sy imprint
 ```
 
-`repo.db` is under `pacman/x86_64/` and `pacman/aarch64/`. The `.pkg.tar.zst`
-is downloaded from the Imprint GitHub Release (`pacman/repo.conf` lists that
-URL as a second `Server=`).
+`repo.db` and `repo.db.sig` are under `pacman/x86_64/` and
+`pacman/aarch64/`. Each `.pkg.tar.zst` / `.pkg.tar.xz` is 302'd from
+`/pacman/$arch/<file>` to `https://github.com/googolmo/imprint/releases/download/v0.1.4/`.
 
 ## Updating the index
 
-From [googolmo/imprint](https://github.com/googolmo/imprint) after a tag
-release, or manually:
+Run **Actions → Update index → Run workflow**. Leave `tag` as `latest` (or
+empty) to use the newest Imprint release, or pass a tag such as `v0.1.4`.
+The job checks out `main`, calls `.github/scripts/update-index.py --apply`,
+then commits and pushes to `main`. Imprint's Release workflow can dispatch
+the same action.
 
 ```bash
-gh workflow run update-index.yml -R googolmo/repo \
-  -f tag=v0.1.4 -f github_repo=googolmo/imprint
+gh workflow run update-index.yml -R googolmo/repo -f github_repo=googolmo/imprint -f tag=v0.1.4
 ```
 
 Secrets on this repository:
 
 | Secret | Role |
 | --- | --- |
-| `GPG_PRIVATE_KEY` | OpenPGP secret matching `keys/repo.asc`; signs APT `InRelease` |
+| `GPG_PRIVATE_KEY` | OpenPGP secret matching `keys/repo.asc`; signs APT `InRelease` and Pacman `repo.db` (overridden by `--gpg-private-key`) |
 | `GPG_PASSPHRASE` | Optional passphrase for that key |
-
-Imprint needs `LINUX_REPO_TOKEN` (a PAT that can dispatch workflows on this
-repository) to trigger `update-index`.
 
 ## Layout
 
 ```
 .
-├── _redirects                 Cloudflare 302s for .deb / .pkg.tar.zst
-├── index.html
-├── 404.html
+├── _redirects                 one Cloudflare 302 per .deb / .pkg.tar.*
 ├── keys/
-│   ├── repo.asc
-│   └── repo.gpg
 ├── ubuntu/
 │   ├── repo.sources
 │   ├── repo.list
-│   └── dists/{stable,ubuntu22.04,ubuntu24.04,ubuntu26.04}/
+│   ├── dists/{ubuntu22.04,ubuntu24.04,ubuntu26.04}/
+│   │   └── main/{binary-amd64,binary-arm64,source}/
+│   └── pool/github/...        virtual; not stored, 302 per file
 └── pacman/
     ├── repo.conf
-    ├── x86_64/                repo.db only
+    ├── x86_64/                repo.db + repo.db.sig
     └── aarch64/
 ```

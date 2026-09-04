@@ -1,12 +1,12 @@
 # Linux package repository (DEB822)
 # Install the keyring first:
-#   sudo curl -fsSL https://googolmo.github.io/repo/keys/repo.gpg \
+#   sudo curl -fsSL https://repo-cr4.pages.dev/keys/repo.gpg \
 #     -o /usr/share/keyrings/repo-archive-keyring.gpg
-# Suite `stable` is the Ubuntu 22.04 / Debian 12+ .deb (widest glibc range).
+# Default suite is ubuntu22.04 (Debian 12+ / widest glibc range).
 # Use Suites: ubuntu24.04 or ubuntu26.04 for those newer-glibc builds instead.
 Types: deb
-URIs: https://googolmo.github.io/repo/ubuntu
-Suites: stable
+URIs: https://repo-cr4.pages.dev/ubuntu
+Suites: ubuntu22.04
 Components: main
 Architectures: amd64 arm64
 Signed-By: /usr/share/keyrings/repo-archive-keyring.gpg
