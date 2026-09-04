@@ -1,0 +1,19 @@
+# Short cache on APT metadata so `apt update` sees a new Imprint release quickly.
+/ubuntu/dists/*
+  Cache-Control: public, max-age=60
+  X-Content-Type-Options: nosniff
+
+/pacman/repo.conf
+  Cache-Control: public, max-age=60
+  Content-Type: text/plain; charset=utf-8
+
+/pacman/*/repo.db*
+  Cache-Control: public, max-age=60
+
+/ubuntu/repo.sources
+  Cache-Control: public, max-age=60
+  Content-Type: text/plain; charset=utf-8
+
+/ubuntu/repo.list
+  Cache-Control: public, max-age=60
+  Content-Type: text/plain; charset=utf-8

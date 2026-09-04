@@ -2,6 +2,8 @@
 # Install the keyring first:
 #   sudo curl -fsSL https://googolmo.github.io/repo/keys/repo.gpg \
 #     -o /usr/share/keyrings/repo-archive-keyring.gpg
+# Suite `stable` is the Ubuntu 22.04 / Debian 12+ .deb (widest glibc range).
+# Use Suites: ubuntu24.04 or ubuntu26.04 for those newer-glibc builds instead.
 Types: deb
 URIs: https://googolmo.github.io/repo/ubuntu
 Suites: stable
