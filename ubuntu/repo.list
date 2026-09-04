@@ -1,5 +1,5 @@
 # Linux package repository (one-line sources.list format)
 # Install the keyring first:
-#   sudo curl -fsSL https://googolmo.github.io/repo/keys/repo.gpg \
+#   sudo curl -fsSL https://repo-cr4.pages.dev/keys/repo.gpg \
 #     -o /usr/share/keyrings/repo-archive-keyring.gpg
-deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/repo-archive-keyring.gpg] https://googolmo.github.io/repo/ubuntu stable main
+deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/repo-archive-keyring.gpg] https://repo-cr4.pages.dev/ubuntu ubuntu22.04 main

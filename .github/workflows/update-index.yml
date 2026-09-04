@@ -1,0 +1,155 @@
+# Rebuild APT Packages + Pacman source files from an Imprint GitHub Release.
+#
+# Triggered by:
+#   - Actions → Update index → Run workflow (manual)
+#   - googolmo/imprint Release (workflow_dispatch via LINUX_REPO_TOKEN)
+#   - repository_dispatch event_type=update-index
+#
+# The job always checks out main, calls
+# .github/scripts/update-index.py --apply (resolves the tag, downloads
+# Release assets, writes indexes + _redirects, and signs), then commits
+# and pushes to origin/main.
+#
+# Inputs:
+#   github_repo   owner/name (default googolmo/imprint)
+#   tag           Release tag; empty or "latest" resolves to the latest release
+#
+# Secrets (this repository):
+#   GPG_PRIVATE_KEY     OpenPGP secret matching keys/repo.asc (required).
+#                       Signs ubuntu/dists/*/InRelease, Release.gpg, and
+#                       pacman/$arch/repo.db.sig. Overridden by
+#                       --gpg-private-key if the generator is given a file.
+#   GPG_PASSPHRASE      Optional passphrase for GPG_PRIVATE_KEY.
+#
+# Package bytes stay on the Imprint Release. This job commits indexes and
+# per-file _redirects (Cloudflare 302 → GitHub Release asset URL).
+
+name: Update index
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Imprint GitHub Release tag (empty or "latest" = latest release)
+        required: false
+        default: latest
+        type: string
+      github_repo:
+        description: owner/name of the Imprint repository
+        required: false
+        default: googolmo/imprint
+        type: string
+      version:
+        description: Package version without v prefix (optional; derived from tag)
+        required: false
+        type: string
+  repository_dispatch:
+    types: [update-index]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-index
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  REPO_BASE_URL: https://repo-cr4.pages.dev
+
+jobs:
+  update-index:
+    name: Update APT + Pacman indexes
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TAG: ${{ github.event.inputs.tag || github.event.client_payload.tag || 'latest' }}
+      IMPRINT_REPO: ${{ github.event.inputs.github_repo || github.event.client_payload.github_repo || 'googolmo/imprint' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Check generator
+        run: python3 .github/scripts/update-index.py --self-test
+
+      - name: Update indexes
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${GPG_PRIVATE_KEY}" ]]; then
+            echo "GPG_PRIVATE_KEY secret is not set; cannot sign indexes" >&2
+            exit 1
+          fi
+          python3 .github/scripts/update-index.py --apply \
+            --repo-dir . \
+            --tag "$TAG" \
+            --github-repo "$IMPRINT_REPO"
+
+      - name: Verify indexes
+        run: |
+          set -euo pipefail
+          echo "tag=${TAG} repo=${IMPRINT_REPO}"
+          for suite in ubuntu22.04 ubuntu24.04 ubuntu26.04; do
+            test -f "ubuntu/dists/${suite}/InRelease"
+            test -f "ubuntu/dists/${suite}/Release.gpg"
+            test -f "ubuntu/dists/${suite}/main/binary-amd64/Packages"
+            test -f "ubuntu/dists/${suite}/main/binary-arm64/Packages"
+            test -f "ubuntu/dists/${suite}/main/source/Sources"
+          done
+          test -f _redirects
+          test -f ubuntu/repo.sources
+          test -f ubuntu/repo.list
+          test -f pacman/repo.conf
+          test -f pacman/x86_64/repo.db
+          test -f pacman/x86_64/repo.db.sig
+          test -f pacman/x86_64/repo.db.tar.gz.sig
+          test -f pacman/aarch64/repo.db
+          test -f pacman/aarch64/repo.db.sig
+          test -f pacman/aarch64/repo.db.tar.gz.sig
+          grep -F "releases/download/${TAG}/" _redirects
+          grep -F "Server = https://github.com/${IMPRINT_REPO}/releases/download/${TAG}" \
+            pacman/repo.conf
+          grep -F "SigLevel = PackageOptional DatabaseRequired" pacman/repo.conf
+          if grep -E 'releases/latest/download|:splat|/:owner/' _redirects pacman/repo.conf; then
+            echo "must not use /releases/latest/download or directory splat redirects" >&2
+            exit 1
+          fi
+          if find ubuntu/pool -name '*.deb' | grep -q .; then
+            echo "refusing to commit .deb files; they must redirect to GitHub" >&2
+            exit 1
+          fi
+          if find pacman -name '*.pkg.tar.*' | grep -q .; then
+            echo "refusing to commit pacman packages; they must redirect to GitHub" >&2
+            exit 1
+          fi
+
+      - name: Commit and push
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- \
+            _redirects \
+            README.md \
+            index.html \
+            ubuntu/index.html \
+            pacman/index.html \
+            ubuntu/repo.sources \
+            ubuntu/repo.list \
+            ubuntu/dists \
+            pacman/repo.conf \
+            pacman/x86_64 \
+            pacman/aarch64
+          if [[ -z "$(git status --porcelain -- \
+              _redirects README.md index.html ubuntu pacman)" ]]; then
+            echo "indexes already up to date for ${TAG}"
+            exit 0
+          fi
+          git commit -m "imprint ${TAG}: APT Packages + Pacman source"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+          echo "committed indexes for ${TAG} → main"

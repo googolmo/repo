@@ -1,0 +1,30 @@
+Origin: MOSUMI
+Label: MOSUMI
+Suite: ubuntu22.04
+Codename: ubuntu22.04
+Date: Fri, 04 Sep 2026 06:38:56 GMT
+Architectures: amd64 arm64
+Components: main
+Description: MOSUMI Linux package repository
+Acquire-By-Hash: no
+MD5Sum:
+ fd7629c462ee905698f08f48ca510a2b              754 main/binary-amd64/Packages
+ 49cd03f079c038c3df0926bdd7961754              511 main/binary-amd64/Packages.gz
+ 81c31c9dd57f97088af60a6b30ed0d96              753 main/binary-arm64/Packages
+ 4e953e9ee8aad7e088f88c806e5d410e              511 main/binary-arm64/Packages.gz
+ d41d8cd98f00b204e9800998ecf8427e                0 main/source/Sources
+ fa9ac5a217b5547bc7dd4e6e894fe135               20 main/source/Sources.gz
+SHA1:
+ 9b1618cae3f07193ee7749c6b086700ea8ff8083              754 main/binary-amd64/Packages
+ 3d112fa855334f2e8b162cd50656318501473692              511 main/binary-amd64/Packages.gz
+ cbf5a4252d4c3a38b7c67676cb5da3bac8e43757              753 main/binary-arm64/Packages
+ 7f33a6b6a4629cccaaada30dc7857d1a18004ce1              511 main/binary-arm64/Packages.gz
+ da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/source/Sources
+ 89892054d65b8b0dd6a081b33a97b6f2bd1fa267               20 main/source/Sources.gz
+SHA256:
+ df8987a5ca44545f090719155585a4d513847adc6f3343348ded288b522ab356              754 main/binary-amd64/Packages
+ 892e089c5eca325a735b1e4191317ccd117e51a9d20da549b6b1008fdb4f3ddc              511 main/binary-amd64/Packages.gz
+ 21cf1088dce0abd36630b5868b2e2825a797e895c4dbfaf3be11763144a5216b              753 main/binary-arm64/Packages
+ 288dda219c88edca76841ef21bcba0600747040147f0381255f505e33b11dc74              511 main/binary-arm64/Packages.gz
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/source/Sources
+ 9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64               20 main/source/Sources.gz

@@ -31,15 +31,17 @@
 
     <h1>Add the MOSUMI package source</h1>
     <p class="lede">
-      This GitHub Pages site hosts the APT repository, Pacman repository,
-      and OpenPGP public key used to verify package signatures.
+      This Cloudflare Pages site hosts the APT and Pacman <em>indexes</em>
+      and the OpenPGP public key. <code>.deb</code> and
+      <code>.pkg.tar.zst</code> files 302 to
+      <a href="https://github.com/googolmo/imprint/releases">Imprint GitHub Releases</a>.
     </p>
 
     <div class="meta">
       <article>
         <dl>
           <dt>Base URL</dt>
-          <dd>https://googolmo.github.io/repo/</dd>
+          <dd>https://repo-cr4.pages.dev/</dd>
         </dl>
       </article>
       <article>
@@ -69,42 +71,49 @@
         <ol class="steps">
           <li>Download the binary keyring to <code>/usr/share/keyrings</code>.</li>
           <li>Install <a href="ubuntu/repo.sources">ubuntu/repo.sources</a>.</li>
-          <li>Run <code>apt update</code>.</li>
+          <li>Run <code>apt update</code> and <code>apt install imprint</code>.</li>
         </ol>
         <pre data-copy><code>sudo mkdir -p /usr/share/keyrings
-sudo curl -fsSL https://googolmo.github.io/repo/keys/repo.gpg \
+sudo curl -fsSL https://repo-cr4.pages.dev/keys/repo.gpg \
   -o /usr/share/keyrings/repo-archive-keyring.gpg
 sudo chmod 644 /usr/share/keyrings/repo-archive-keyring.gpg
-sudo curl -fsSL https://googolmo.github.io/repo/ubuntu/repo.sources \
+sudo curl -fsSL https://repo-cr4.pages.dev/ubuntu/repo.sources \
   -o /etc/apt/sources.list.d/repo.sources
-sudo apt update</code></pre>
+sudo apt update
+sudo apt install imprint</code></pre>
         <p class="note">
           Older APT setups can use
           <a href="ubuntu/repo.list">ubuntu/repo.list</a>
           instead of the <code>.sources</code> file.
-          Repository files live under <a href="ubuntu/">ubuntu/</a>.
+          <code>Packages</code> lives under <a href="ubuntu/">ubuntu/</a>
+          for suites <code>ubuntu22.04</code>,
+          <code>ubuntu24.04</code>, and <code>ubuntu26.04</code>
+          on <code>amd64</code> and <code>arm64</code>.
+          Each <code>.deb</code> 302s to its GitHub Release asset.
         </p>
       </section>
 
       <section class="card" id="arch">
         <h2>Arch Linux / Pacman</h2>
-        <p>Import and locally sign the key, then include the repo snippet.</p>
+        <p>Import the signing key, install the repo snippet, then sync.
+          <code>repo.db</code> is here; <code>.pkg.tar.zst</code> is fetched
+          from GitHub Releases.</p>
         <ol class="steps">
-          <li>Add and locally sign key <code>9DF42B7054F1CB5B</code>.</li>
+          <li>Add and locally sign <a href="keys/repo.asc">keys/repo.asc</a>.</li>
           <li>Install <a href="pacman/repo.conf">pacman/repo.conf</a>.</li>
-          <li>Include it from <code>/etc/pacman.conf</code> and sync.</li>
+          <li>Include it from <code>/etc/pacman.conf</code>.</li>
+          <li>Run <code>pacman -Sy imprint</code>.</li>
         </ol>
-        <pre data-copy><code>curl -fsSL https://googolmo.github.io/repo/keys/repo.asc | sudo pacman-key --add -
-sudo pacman-key --lsign-key 91FDA44879208693204E90EE9DF42B7054F1CB5B
-sudo curl -fsSL https://googolmo.github.io/repo/pacman/repo.conf \
+        <pre data-copy><code>curl -fsSL https://repo-cr4.pages.dev/keys/repo.asc | sudo pacman-key --add -
+sudo pacman-key --lsign-key 9DF42B7054F1CB5B
+sudo curl -fsSL https://repo-cr4.pages.dev/pacman/repo.conf \
   -o /etc/pacman.d/repo
 echo -e '\nInclude = /etc/pacman.d/repo' | sudo tee -a /etc/pacman.conf
-sudo pacman -Sy</code></pre>
+sudo pacman -Sy imprint</code></pre>
         <p class="note">
-          Packages are served from
-          <code>https://googolmo.github.io/repo/pacman/$arch</code>
-          (<a href="pacman/x86_64/">x86_64</a>,
-          <a href="pacman/aarch64/">aarch64</a>).
+          Signed <code>repo.db</code> is under
+          <a href="pacman/x86_64/">x86_64</a> and
+          <a href="pacman/aarch64/">aarch64</a>.
         </p>
       </section>
     </div>
@@ -121,7 +130,7 @@ sudo pacman -Sy</code></pre>
     </section>
 
     <footer>
-      <span>MOSUMI Linux package repository · hosted on GitHub Pages</span>
+      <span>MOSUMI Linux package repository · hosted on Cloudflare Pages</span>
       <a href="https://github.com/googolmo/repo">github.com/googolmo/repo</a>
     </footer>
   </div>
