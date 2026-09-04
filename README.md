@@ -10,7 +10,9 @@ Cloudflare 302s each `.deb` and Pacman `.pkg.tar.*` to the matching
 Current Imprint release: `v0.1.5` → `https://github.com/googolmo/imprint/releases/download/v0.1.5/`
 
 Connect this repository to **Cloudflare Pages** (build command empty, output
-directory `/`) so `_redirects` is honoured. GitHub Pages cannot 302 `/pool`.
+directory `/`) so the assembled root `_redirects` is honoured. Per-release
+fragments live under `ubuntu/_redirects.d` and `pacman/_redirects.d` so
+updating one tag keeps older 302s. GitHub Pages cannot 302 `/pool`.
 
 ## Public key
 
@@ -79,16 +81,18 @@ Secrets on this repository:
 
 ```
 .
-├── _redirects                 one Cloudflare 302 per .deb / .pkg.tar.*
+├── _redirects                 assembled Cloudflare 302s (do not edit)
 ├── keys/
 ├── ubuntu/
 │   ├── repo.sources
 │   ├── repo.list
 │   ├── dists/{ubuntu22.04,ubuntu24.04,ubuntu26.04}/
 │   │   └── main/{binary-amd64,binary-arm64,source}/
+│   ├── _redirects.d/<owner>/<repo>/<tag>/_redirects
 │   └── pool/github/...        virtual; not stored, 302 per file
 └── pacman/
     ├── repo.conf
+    ├── _redirects.d/<owner>/<repo>/<tag>/_redirects
     ├── x86_64/                repo.db + repo.db.sig
     └── aarch64/
 ```

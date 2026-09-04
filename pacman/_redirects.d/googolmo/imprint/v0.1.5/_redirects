@@ -1,0 +1,4 @@
+# googolmo/imprint v0.1.5 — pacman package redirects.
+
+/pacman/aarch64/imprint_0.1.5_archlinux_arm64.pkg.tar.xz https://github.com/googolmo/imprint/releases/download/v0.1.5/imprint_0.1.5_archlinux_arm64.pkg.tar.xz 302
+/pacman/x86_64/imprint_0.1.5_archlinux_amd64.pkg.tar.zst https://github.com/googolmo/imprint/releases/download/v0.1.5/imprint_0.1.5_archlinux_amd64.pkg.tar.zst 302

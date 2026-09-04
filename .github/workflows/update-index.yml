@@ -7,8 +7,8 @@
 #
 # The job always checks out main, calls
 # .github/scripts/update-index.py --apply (resolves the tag, downloads
-# Release assets, writes indexes + _redirects, and signs), then commits
-# and pushes to origin/main.
+# Release assets, writes indexes + per-tag _redirects fragments, assembles
+# the root _redirects, and signs), then commits and pushes to origin/main.
 #
 # Inputs:
 #   github_repo   owner/name (default googolmo/imprint)
@@ -22,7 +22,8 @@
 #   GPG_PASSPHRASE      Optional passphrase for GPG_PRIVATE_KEY.
 #
 # Package bytes stay on the Imprint Release. This job commits indexes and
-# per-file _redirects (Cloudflare 302 → GitHub Release asset URL).
+# per-file _redirects fragments (Cloudflare 302 → GitHub Release asset URL),
+# keeping older tag directories so previous 302s stay in the assembled root.
 
 name: Update index
 
@@ -101,6 +102,9 @@ jobs:
             test -f "ubuntu/dists/${suite}/main/source/Sources"
           done
           test -f _redirects
+          owner="${IMPRINT_REPO%/*}"
+          name="${IMPRINT_REPO#*/}"
+          test -f "pacman/_redirects.d/${owner}/${name}/${TAG}/_redirects"
           test -f ubuntu/repo.sources
           test -f ubuntu/repo.list
           test -f pacman/repo.conf
@@ -144,8 +148,13 @@ jobs:
             pacman/repo.conf \
             pacman/x86_64 \
             pacman/aarch64
+          for dir in ubuntu/_redirects.d pacman/_redirects.d _redirects.d; do
+            if [[ -e "$dir" ]]; then
+              git add -- "$dir"
+            fi
+          done
           if [[ -z "$(git status --porcelain -- \
-              _redirects README.md index.html ubuntu pacman)" ]]; then
+              _redirects README.md index.html ubuntu pacman _redirects.d)" ]]; then
             echo "indexes already up to date for ${TAG}"
             exit 0
           fi
