@@ -3,11 +3,11 @@
 APT (Debian / Ubuntu) and Pacman (Arch Linux) **indexes** for Imprint, served
 from Cloudflare Pages. Package files are **not** stored in this git tree:
 Cloudflare 302s each `.deb` and Pacman `.pkg.tar.*` to the matching
-[GitHub Release](https://github.com/googolmo/imprint/releases/tag/v0.1.4) asset.
+[GitHub Release](https://github.com/googolmo/imprint/releases/tag/v0.1.5) asset.
 
 **Base URL:** https://repo-cr4.pages.dev/
 
-Current Imprint release: `v0.1.4` → `https://github.com/googolmo/imprint/releases/download/v0.1.4/`
+Current Imprint release: `v0.1.5` → `https://github.com/googolmo/imprint/releases/download/v0.1.5/`
 
 Connect this repository to **Cloudflare Pages** (build command empty, output
 directory `/`) so `_redirects` is honoured. GitHub Pages cannot 302 `/pool`.
@@ -42,7 +42,7 @@ sudo apt install imprint
 `ubuntu/repo.sources` uses suite `ubuntu22.04` (Debian 12+ / widest
 glibc). Suites `ubuntu24.04` and `ubuntu26.04` exist for the newer-glibc
 builds (amd64 and arm64). `Filename` in `Packages` is a per-file pool path
-under `ubuntu/pool/github/`; Cloudflare 302s that exact file to `https://github.com/googolmo/imprint/releases/download/v0.1.4/`.
+under `ubuntu/pool/github/`; Cloudflare 302s that exact file to `https://github.com/googolmo/imprint/releases/download/v0.1.5/`.
 
 ## Arch Linux (Pacman)
 
@@ -57,18 +57,15 @@ sudo pacman -Sy imprint
 
 `repo.db` and `repo.db.sig` are under `pacman/x86_64/` and
 `pacman/aarch64/`. Each `.pkg.tar.zst` / `.pkg.tar.xz` is 302'd from
-`/pacman/$arch/<file>` to `https://github.com/googolmo/imprint/releases/download/v0.1.4/`.
+`/pacman/$arch/<file>` to `https://github.com/googolmo/imprint/releases/download/v0.1.5/`.
 
 ## Updating the index
 
-Run **Actions → Update index → Run workflow**. Leave `tag` as `latest` (or
-empty) to use the newest Imprint release, or pass a tag such as `v0.1.4`.
-The job checks out `main`, calls `.github/scripts/update-index.py --apply`,
-then commits and pushes to `main`. Imprint's Release workflow can dispatch
-the same action.
+Imprint's Release workflow dispatches this repository's `update-index` action
+with the new tag. Manual run (empty tag = latest):
 
 ```bash
-gh workflow run update-index.yml -R googolmo/repo -f github_repo=googolmo/imprint -f tag=v0.1.4
+gh workflow run update-index.yml -R googolmo/repo -f github_repo=googolmo/imprint -f tag=v0.1.5
 ```
 
 Secrets on this repository:

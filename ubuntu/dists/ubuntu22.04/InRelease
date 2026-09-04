@@ -5,45 +5,45 @@ Origin: MOSUMI
 Label: MOSUMI
 Suite: ubuntu22.04
 Codename: ubuntu22.04
-Date: Fri, 04 Sep 2026 06:38:56 GMT
+Date: Fri, 04 Sep 2026 09:52:02 GMT
 Architectures: amd64 arm64
 Components: main
 Description: MOSUMI Linux package repository
 Acquire-By-Hash: no
 MD5Sum:
- fd7629c462ee905698f08f48ca510a2b              754 main/binary-amd64/Packages
- 49cd03f079c038c3df0926bdd7961754              511 main/binary-amd64/Packages.gz
- 81c31c9dd57f97088af60a6b30ed0d96              753 main/binary-arm64/Packages
- 4e953e9ee8aad7e088f88c806e5d410e              511 main/binary-arm64/Packages.gz
+ d41d8cd98f00b204e9800998ecf8427e                0 main/binary-amd64/Packages
+ 4a4dd3598707603b3f76a2378a4504aa               20 main/binary-amd64/Packages.gz
+ d41d8cd98f00b204e9800998ecf8427e                0 main/binary-arm64/Packages
+ 4a4dd3598707603b3f76a2378a4504aa               20 main/binary-arm64/Packages.gz
  d41d8cd98f00b204e9800998ecf8427e                0 main/source/Sources
- fa9ac5a217b5547bc7dd4e6e894fe135               20 main/source/Sources.gz
+ 4a4dd3598707603b3f76a2378a4504aa               20 main/source/Sources.gz
 SHA1:
- 9b1618cae3f07193ee7749c6b086700ea8ff8083              754 main/binary-amd64/Packages
- 3d112fa855334f2e8b162cd50656318501473692              511 main/binary-amd64/Packages.gz
- cbf5a4252d4c3a38b7c67676cb5da3bac8e43757              753 main/binary-arm64/Packages
- 7f33a6b6a4629cccaaada30dc7857d1a18004ce1              511 main/binary-arm64/Packages.gz
+ da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/binary-amd64/Packages
+ a0fddd5458378c1bf3c10dd2f5c060d1347741ed               20 main/binary-amd64/Packages.gz
+ da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/binary-arm64/Packages
+ a0fddd5458378c1bf3c10dd2f5c060d1347741ed               20 main/binary-arm64/Packages.gz
  da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/source/Sources
- 89892054d65b8b0dd6a081b33a97b6f2bd1fa267               20 main/source/Sources.gz
+ a0fddd5458378c1bf3c10dd2f5c060d1347741ed               20 main/source/Sources.gz
 SHA256:
- df8987a5ca44545f090719155585a4d513847adc6f3343348ded288b522ab356              754 main/binary-amd64/Packages
- 892e089c5eca325a735b1e4191317ccd117e51a9d20da549b6b1008fdb4f3ddc              511 main/binary-amd64/Packages.gz
- 21cf1088dce0abd36630b5868b2e2825a797e895c4dbfaf3be11763144a5216b              753 main/binary-arm64/Packages
- 288dda219c88edca76841ef21bcba0600747040147f0381255f505e33b11dc74              511 main/binary-arm64/Packages.gz
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/binary-amd64/Packages
+ f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec               20 main/binary-amd64/Packages.gz
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/binary-arm64/Packages
+ f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec               20 main/binary-arm64/Packages.gz
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/source/Sources
- 9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64               20 main/source/Sources.gz
+ f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec               20 main/source/Sources.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEiRq3fLeIlPsLT7tUQzsdnT+T45EFAmqaZ4AACgkQQzsdnT+T
-45H7lA/+Njc5OCcZ+dsen+VNSeDHSZFeAxnnSIXe3phiIld4tGj4lwzdX1di9ADV
-TaBkIgBo0Xgh0bSErC+y+Gt8x6Y9l/yL4EOlT8syx/tXnwUBtTDXHIyP+XNtVEsQ
-fDPLR8fdHwiFgPFvaiCXuhSeekcl3ATICPO2xxWOXr7ZVmv56rXAq1oyG7GDKPcD
-sMEDL4f089ufNb3CooFs19PB+ru31sdswR1LI4G/62ePFKdKg8Z+LPgbxoyrkhd1
-NLnsPrSXWBl60/fSI3F/w6FrK7UP14hYLlvqsSJf0UMSwAPl/L8MCIogvcv/OVN7
-IwyqUcl8lklZS84b9U1ahA8HoweotktJSZqvYDqzeOgTbV4lOlEf5Yo+NdE1ZLks
-xxSv88pUrVYADVy+env1kOFpMfxyvV6eKlmjFvqLBm67+oq3dj87bnL6U5OPML9M
-w6WOW0uSeKGsEqZ8pM/sqnrBTsHFtlmkxLtm5r712NoxwegxLdneNb4IpIpPvRCt
-N/3P2xs8JzN4jh9a/e1gBStr8MyXADXQCUsCT9eOnfHrZN1YXsk1120kdTfJxqtn
-Zq03rPkAlRUW2aeo7Tf+ttEWl7Dlhz1VGge/SY3WK3ev63u9TJ1ikAqRZDd1jvnK
-5QRryPNC8o6FC9SQJo5hVTV7ka8KKPnApx/66QSLj5wQtC86WCA=
-=CPsO
+iQIzBAEBCAAdFiEEiRq3fLeIlPsLT7tUQzsdnT+T45EFAmqalMIACgkQQzsdnT+T
+45FzAhAAmSYv82q9eHXlOz+NsQcwlugJxGnbBGpI0MOKKzbyGlBFQFr4cE66WuRP
+wComCc6ZX/Jz4zSkUV38vWCs/PjoaiGW2MksbJbUZByVMDqGQMLMSDZ/joHTTVe5
+viL/qCymOKbOKvctnLw5lb/IiyL5ojYeKYKR3uJcPYetjSS+uw5Os9cUzd4KIwBs
+m/b9GahPKcSzox1QymzveGf92fYeDWjl4O6N2I4lv8Qb4XaZgp6wTa70nM+8Hm4/
+TyE6n/TrtSK4XD5t1ay0I6tnRX52Jyj97M8gO+/hhiJrlm9vkjKXly0Pkz+jeDSe
+0s8mJHAhUi/cnFUVRCUCcum9Gr6DoDwpsY7UsES8lxB+uy83r/J4O3uqsAryg8P6
+ECYm1P/Qf36NbP9bZ9Kp4V8uMGdh3Ht0wj6Cm7hu2gD/eWEed9asMPT29lcA2VqE
+SLpIBp+vVn+4OnyefVtr0/Dy8wyyr1Pvvp0zMbaMMT86e69Y1KUdGkggD+MMbvE3
+YlH0n+l3BKcnI89/oglp3m4I8zLeWEUF7qP10HP8zmB461yuYu4aqG9TNgb+EXLp
+rsRSdxcjJyWdwTl4Ii9WaT7UPLyUD5I5l95o+vf5kSEzuulHgn0U/tZslWGa0pML
+gcu/sS37MPkNRmTzliEINMAM4fsO7ar0vCzUhD4ZILWDuHzWGjo=
+=upe8
 -----END PGP SIGNATURE-----

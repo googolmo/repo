@@ -1,5 +1,5 @@
 Package: imprint
-Version: 0.1.4
+Version: 0.1.5
 Architecture: arm64
 Maintainer: Imprint Contributors
 Installed-Size: 36139
@@ -9,8 +9,8 @@ Priority: optional
 Homepage: https://github.com/googolmo/imprint
 Description: Flash OS images onto USB drives and SD cards
  Pick an image, pick a removable disk, write, and optionally verify. Native desktop UI plus a CLI.
-Filename: pool/github/googolmo/imprint/v0.1.4/imprint_0.1.4_ubuntu24.04_arm64.deb
-Size: 17032116
-MD5sum: ead05efd0611950571d507238c61efe1
-SHA1: 049d96d0ec58efacc887762a65b88ca15e733805
-SHA256: 928dc8b8b41b4e195e391b59cc19bcec822490dae96a883b31a04dead6dcef74
+Filename: pool/github/googolmo/imprint/v0.1.5/imprint_0.1.5_ubuntu24.04_arm64.deb
+Size: 17029248
+MD5sum: 618cdee0d7b92d9a825369d04e612a61
+SHA1: 24be79db23826afa70e8575b461bfa153379dc4b
+SHA256: 133c0b2d5058fe20252ae84c21146799b1e46fa79a0ea91e914f5196f9be1aae

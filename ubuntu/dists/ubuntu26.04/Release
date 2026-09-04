@@ -2,29 +2,29 @@ Origin: MOSUMI
 Label: MOSUMI
 Suite: ubuntu26.04
 Codename: ubuntu26.04
-Date: Fri, 04 Sep 2026 06:38:57 GMT
+Date: Fri, 04 Sep 2026 09:52:02 GMT
 Architectures: amd64 arm64
 Components: main
 Description: MOSUMI Linux package repository
 Acquire-By-Hash: no
 MD5Sum:
- d41d8cd98f00b204e9800998ecf8427e                0 main/binary-amd64/Packages
- fa9ac5a217b5547bc7dd4e6e894fe135               20 main/binary-amd64/Packages.gz
- d41d8cd98f00b204e9800998ecf8427e                0 main/binary-arm64/Packages
- fa9ac5a217b5547bc7dd4e6e894fe135               20 main/binary-arm64/Packages.gz
+ 51c07a1c401b8394bf53617c7fb0c737              753 main/binary-amd64/Packages
+ b020a5707db7f1cfaa35f85bad0c9325              512 main/binary-amd64/Packages.gz
+ e25908277a36f8267afc294efa065cbc              753 main/binary-arm64/Packages
+ 2cd61add605c31785b74155c86f33362              512 main/binary-arm64/Packages.gz
  d41d8cd98f00b204e9800998ecf8427e                0 main/source/Sources
- fa9ac5a217b5547bc7dd4e6e894fe135               20 main/source/Sources.gz
+ 4a4dd3598707603b3f76a2378a4504aa               20 main/source/Sources.gz
 SHA1:
- da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/binary-amd64/Packages
- 89892054d65b8b0dd6a081b33a97b6f2bd1fa267               20 main/binary-amd64/Packages.gz
- da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/binary-arm64/Packages
- 89892054d65b8b0dd6a081b33a97b6f2bd1fa267               20 main/binary-arm64/Packages.gz
+ 16f187726223f4b4d53a75d937a23f18d82d0883              753 main/binary-amd64/Packages
+ 166bfb0ee6e3ffc9458875cb7983780c578ed908              512 main/binary-amd64/Packages.gz
+ 935afdc5dbff03c639bcfb167f64d265dde8165e              753 main/binary-arm64/Packages
+ 4bce5c712e8820c1cd6c59a11a6bdda17d90aad6              512 main/binary-arm64/Packages.gz
  da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/source/Sources
- 89892054d65b8b0dd6a081b33a97b6f2bd1fa267               20 main/source/Sources.gz
+ a0fddd5458378c1bf3c10dd2f5c060d1347741ed               20 main/source/Sources.gz
 SHA256:
- e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/binary-amd64/Packages
- 9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64               20 main/binary-amd64/Packages.gz
- e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/binary-arm64/Packages
- 9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64               20 main/binary-arm64/Packages.gz
+ 27134783df106dfaf788b7c8cea95ebb6b1877c50a3f8356e50c8e370c25b23d              753 main/binary-amd64/Packages
+ 28098de836eaeab2a2ab81cc2e0a66369cd519fcadf3c9d41d5b38aa724ecf4a              512 main/binary-amd64/Packages.gz
+ 94ba380929af68fa6db8908c8e2369bfe73b90779858ce9ecdb18167ac72b355              753 main/binary-arm64/Packages
+ ca984790923e82d180245d9a489ff2fe4d4d85c18046f70b7072b1acc249e6f6              512 main/binary-arm64/Packages.gz
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/source/Sources
- 9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64               20 main/source/Sources.gz
+ f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec               20 main/source/Sources.gz
