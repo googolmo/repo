@@ -5,7 +5,7 @@ Origin: MOSUMI
 Label: MOSUMI
 Suite: ubuntu24.04
 Codename: ubuntu24.04
-Date: Fri, 04 Sep 2026 09:54:21 GMT
+Date: Fri, 04 Sep 2026 09:54:37 GMT
 Architectures: amd64 arm64
 Components: main
 Description: MOSUMI Linux package repository
@@ -33,17 +33,17 @@ SHA256:
  f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec               20 main/source/Sources.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEiRq3fLeIlPsLT7tUQzsdnT+T45EFAmqalU0ACgkQQzsdnT+T
-45H0/A//Vo+CxJSGUiJkHLh5b+hpK0jplzZ83Yc91kcTOvxuIxKsROiHXBcw7gvJ
-k3EvYd1fVO7gEDK5NP4ZS4BoswrSNaohuSxJGUvEkEgc7MsHa1d7BfqO7o8cVXME
-sg9msAC7HljkCITrTzOyRScA2qOmfjj4qnbC+N4oVImXioqd+RPHW6WuGSxMKvGz
-pjvspybTgd94Nxdj7mmnvTmcRvFmJ3dDmpvjIVdOZZZIdleuTpcDiqS2lrVhPdqG
-Mwz+49hPEKJlTOEXteVXOWpend4Pm3HHrjN374F0pQ+6qJu6sB+zaaBYyNOfSr3s
-iAT4uInK7elKuDulMf08dwub6pvZ7lasV9vhsfkBbIH5aa5Xi8XzmzmuPtUo44yU
-YMqkwev9qLL03Uv6V01YhuBYmW+u2bvMa7g6cLeaiJLJuSPhptLRHkAFq1inuFLN
-ks3EOz2nsiWT4KBzGnGy0OSYcuTJIHPPZgSs1ytEjfdWP1VLhwHR6yrKg7UmFg9X
-phha8im37UtegUkho+hkCPguUW30GaT4I4M9xA9iU5hD7YyjFCD/7C5nz1rns1B9
-aZ4l6SNOf2aKrc/uaMYIOM7V+/ixj5bx1vY1WVBtjhLoF3zPla79ZTdM2IQoL2PE
-SoT77Id4oL7wwqU2ekFhXd/MVyMfL+2npRA9dkN9ehWmYVJXDLg=
-=H21v
+iQIzBAEBCAAdFiEEiRq3fLeIlPsLT7tUQzsdnT+T45EFAmqalV0ACgkQQzsdnT+T
+45Foeg/6Aj9AmuGbXuYTgJRi7AYXcxu0I6TDMBOUsC7zQ5Bvem/9KxfoExiMtD/O
+EgfvPFg0CzDCiqOHYPpL/OLZJ9NVPynKZGeHmaERenl/BWE2+HeF5vYilCxKigvK
+xwbxBmWgd86WOboxQ2bSS3UgxX9hy33DyXKtoRPRxm1mJdwP4R9XGBFiQgryyFlv
+unj3oZsXVm5WXT4oYBnEurSefqdz4Q3E5ZMby+Gq5iX9i+/wkLXupNltHwCfrIp7
+QsyHWhFZxxkTQYu1++zxtyTMRr95AXvyuMIR8hHhs81ZMiSx6giLHK1GgnnIMDaC
+1C5qYqI6nms2zeMC1m4y7ACWeBQvaWIpDjNPir4Y/welV9VnEuQMzyMq5RKpCHFP
+9iquuIpGyCI0NY6y00kExRaMdzpHBywdyeSyMnhi23+lIqkb7aSEjjkvKrOFBIWz
+UzS8Ur2fKy8wxAnWefDYQZ03DpLDZATgpk2WhzQHa9XIQ0avRJP4dA2xglNGaZJF
++xuQaejyUk0feK0FyYKdzGzDE4XlT3bOZFYXxQTqB+WnKe3xXuU4mEs9jpwYDjrb
+lA6ANOgkZZkiuQy9zlxjAYlyw+vJtL7aUBpjXdUvzjFgx/VWN418rlg/t4jd9Vdi
+NrskM9ERitnvXzNXWXFTnNz5P+RK2+7eI9gab6G3WV7Eso5jyN4=
+=lhL+
 -----END PGP SIGNATURE-----
