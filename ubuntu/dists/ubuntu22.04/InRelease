@@ -5,7 +5,7 @@ Origin: MOSUMI
 Label: MOSUMI
 Suite: ubuntu22.04
 Codename: ubuntu22.04
-Date: Fri, 04 Sep 2026 09:52:02 GMT
+Date: Fri, 04 Sep 2026 09:54:21 GMT
 Architectures: amd64 arm64
 Components: main
 Description: MOSUMI Linux package repository
@@ -33,17 +33,17 @@ SHA256:
  f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec               20 main/source/Sources.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEiRq3fLeIlPsLT7tUQzsdnT+T45EFAmqalMIACgkQQzsdnT+T
-45FzAhAAmSYv82q9eHXlOz+NsQcwlugJxGnbBGpI0MOKKzbyGlBFQFr4cE66WuRP
-wComCc6ZX/Jz4zSkUV38vWCs/PjoaiGW2MksbJbUZByVMDqGQMLMSDZ/joHTTVe5
-viL/qCymOKbOKvctnLw5lb/IiyL5ojYeKYKR3uJcPYetjSS+uw5Os9cUzd4KIwBs
-m/b9GahPKcSzox1QymzveGf92fYeDWjl4O6N2I4lv8Qb4XaZgp6wTa70nM+8Hm4/
-TyE6n/TrtSK4XD5t1ay0I6tnRX52Jyj97M8gO+/hhiJrlm9vkjKXly0Pkz+jeDSe
-0s8mJHAhUi/cnFUVRCUCcum9Gr6DoDwpsY7UsES8lxB+uy83r/J4O3uqsAryg8P6
-ECYm1P/Qf36NbP9bZ9Kp4V8uMGdh3Ht0wj6Cm7hu2gD/eWEed9asMPT29lcA2VqE
-SLpIBp+vVn+4OnyefVtr0/Dy8wyyr1Pvvp0zMbaMMT86e69Y1KUdGkggD+MMbvE3
-YlH0n+l3BKcnI89/oglp3m4I8zLeWEUF7qP10HP8zmB461yuYu4aqG9TNgb+EXLp
-rsRSdxcjJyWdwTl4Ii9WaT7UPLyUD5I5l95o+vf5kSEzuulHgn0U/tZslWGa0pML
-gcu/sS37MPkNRmTzliEINMAM4fsO7ar0vCzUhD4ZILWDuHzWGjo=
-=upe8
+iQIzBAEBCAAdFiEEiRq3fLeIlPsLT7tUQzsdnT+T45EFAmqalU0ACgkQQzsdnT+T
+45HgAxAAk8N5m7hHyFC59fCxAvXnclxw17zFIgsLwRghRFb+aUCAHcsQ+S9KvC0W
+L9Cg9KUuyaiQIh2IRRdNGsXZ3I/GJR1Q0rXAHaqVvNAtimAlFJOkGkRfFDrj2u++
+YH7fIMoeQR9W5RDLpzjVjdxarGcu5/1BJmsqasDtEbuEvE9CgCE9Iu7SsNAbv2O9
+yWTpCMxG38tsaAjtSP6Z6d+utQkPT6GyhmgbsQN9l5fyJmISBT8/uahHYxk2DNgG
+kkKu1IqL6c8rhpt6Bovj6azXQ0ehcfmjEF8zsfumpFVZFlhwNp7wfUoWXWras/VI
++mhB5zDvyj0pePKz9p+yfgllA/qOmBMcvQZOkpE1/4eYwnBpU3U/utAiqJ33oQhG
+E1/MvZV0O7BQV86L72kABtWOvfnpxCHkCk5WNkq5ejAqEIH4tPcU58eUnHuX4PBe
+XcaEBnrapICKarQD+mJXaISLwL9p/gQsD9/bd8KHNwlKEWBoGMtvEloEbXNW6OD7
+3OmI1ee0DfGTCNCzGiTgzaZMYOAmQvhCTRgRHOGIcwRpw1FdZdfGURec0k8aCto/
+A0XKS80meLkJXV+Ssz+sq1jTmhByYqrgp/b1RttMNh3lV+oL7DRQimq4I8RYk51B
+5YItdQyvabcMum9EWIdmUB1DHUXu9GxwT/LpmoL+ecXObiXfKwA=
+=pLUj
 -----END PGP SIGNATURE-----
