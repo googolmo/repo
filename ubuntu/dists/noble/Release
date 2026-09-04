@@ -2,29 +2,29 @@ Origin: MOSUMI
 Label: MOSUMI
 Suite: noble
 Codename: noble
-Date: Fri, 04 Sep 2026 09:54:37 GMT
+Date: Fri, 04 Sep 2026 10:35:31 GMT
 Architectures: amd64 arm64
 Components: main
 Description: MOSUMI Linux package repository
 Acquire-By-Hash: no
 MD5Sum:
  f62bf7c2d3fbce631c8e85337536ce8c              753 main/binary-amd64/Packages
- 47cd0711a0f2c598d1ca69ce508f285f              512 main/binary-amd64/Packages.gz
+ 69445c63f786aeb1674d6901b8619305              512 main/binary-amd64/Packages.gz
  82e306cc5a6b0b7781efa91382f39319              753 main/binary-arm64/Packages
- 0c7b43e945a3280712cb4bb5025e701a              511 main/binary-arm64/Packages.gz
+ d7f861c5572ba25475e7ec0a4754e332              511 main/binary-arm64/Packages.gz
  d41d8cd98f00b204e9800998ecf8427e                0 main/source/Sources
- 4a4dd3598707603b3f76a2378a4504aa               20 main/source/Sources.gz
+ fa9ac5a217b5547bc7dd4e6e894fe135               20 main/source/Sources.gz
 SHA1:
  0fe7c78552d95f54c5efc0818f4198cabb760a43              753 main/binary-amd64/Packages
- f8fe41247bf3de7f4b6681f3ea9690215158ff24              512 main/binary-amd64/Packages.gz
+ f8615d22a7b36497b2e11c9d4e963c7a4efe350f              512 main/binary-amd64/Packages.gz
  422e3e59d218b62ac61062d0f3c4c964e2622f2e              753 main/binary-arm64/Packages
- f5b13784b471609acdf7d1558560540b27e1ab33              511 main/binary-arm64/Packages.gz
+ 878bf213059185f018fefb788dada996c38bd39f              511 main/binary-arm64/Packages.gz
  da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/source/Sources
- a0fddd5458378c1bf3c10dd2f5c060d1347741ed               20 main/source/Sources.gz
+ 89892054d65b8b0dd6a081b33a97b6f2bd1fa267               20 main/source/Sources.gz
 SHA256:
  559aa663fb717f3d44c4bfd3bc6bac2ed9a58ac4342868825166b4b08025dfeb              753 main/binary-amd64/Packages
- bbff258609c3de284dcf194f98df3af2ef818289035ca14e2259844fa67c788d              512 main/binary-amd64/Packages.gz
+ 61649f083ed6ea5dec2165ca8b8cb03c8a2da143437c35d4b83d37d884af8636              512 main/binary-amd64/Packages.gz
  fb4d4f85075cb5a4fa1c2ae7b0b190822a4613763ef9ed2f7a92497ad662072a              753 main/binary-arm64/Packages
- 8be5111ec7ffccd3ae3c2ab84980b3a55bfbee766f329d0a9a4a0a4a218bcd7e              511 main/binary-arm64/Packages.gz
+ a1d6aecc5d1e3b57632822ecf35253e503194f6e8dfb33edd268f5a5fbc8255e              511 main/binary-arm64/Packages.gz
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/source/Sources
- f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec               20 main/source/Sources.gz
+ 9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64               20 main/source/Sources.gz
