@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Debian / Ubuntu · MOSUMI repository</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="brand" href="../">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="7" fill="#111418"/>
+          <path fill="#e6b450" d="M8 9.5h16l-2.2 13.2H10.2L8 9.5zm3.1 3.2h9.8l-.3 1.8H11.5l-.4-1.8zm.6 3.6h8.6l-.9 5.4h-6.8l-.9-5.4z"/>
+        </svg>
+        <span>
+          <span class="brand-name">MOSUMI</span>
+          <span class="brand-sub">Debian / Ubuntu APT repository</span>
+        </span>
+      </a>
+      <nav>
+        <a href="../">Home</a>
+        <a href="../pacman/">Pacman</a>
+        <a href="../keys/repo.asc">Public key</a>
+      </nav>
+    </header>
+
+    <h1>Debian / Ubuntu source</h1>
+    <p class="lede">
+      APT packages are published under this directory. Install the signing key,
+      then add the source list.
+    </p>
+
+    <section class="card">
+      <h2>Add the APT source</h2>
+      <p>Recommended on Debian 12+, Ubuntu 22.04+, and newer.</p>
+      <pre data-copy><code>sudo mkdir -p /usr/share/keyrings
+sudo curl -fsSL https://googolmo.github.io/repo/keys/repo.gpg \
+  -o /usr/share/keyrings/repo-archive-keyring.gpg
+sudo chmod 644 /usr/share/keyrings/repo-archive-keyring.gpg
+sudo curl -fsSL https://googolmo.github.io/repo/ubuntu/repo.sources \
+  -o /etc/apt/sources.list.d/repo.sources
+sudo apt update</code></pre>
+      <p class="note">
+        For the one-line <code>sources.list</code> format, use
+        <a href="repo.list">repo.list</a> instead of <a href="repo.sources">repo.sources</a>.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Files</h2>
+      <div class="files">
+        <a href="repo.sources"><strong>DEB822 source</strong><span>ubuntu/repo.sources</span></a>
+        <a href="repo.list"><strong>One-line source list</strong><span>ubuntu/repo.list</span></a>
+        <a href="../keys/repo.gpg"><strong>Binary public key</strong><span>keys/repo.gpg</span></a>
+      </div>
+    </section>
+
+    <footer>
+      <span>Suite <code>stable</code> · component <code>main</code></span>
+      <a href="../">Back to index</a>
+    </footer>
+  </div>
+  <script src="../assets/site.js"></script>
+</body>
+</html>

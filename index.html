@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MOSUMI Linux Package Repository</title>
+  <meta name="description" content="APT and Pacman repository for MOSUMI Linux packages, including the signing public key and source list setup.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="brand" href="./">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="7" fill="#111418"/>
+          <path fill="#e6b450" d="M8 9.5h16l-2.2 13.2H10.2L8 9.5zm3.1 3.2h9.8l-.3 1.8H11.5l-.4-1.8zm.6 3.6h8.6l-.9 5.4h-6.8l-.9-5.4z"/>
+        </svg>
+        <span>
+          <span class="brand-name">MOSUMI</span>
+          <span class="brand-sub">Linux package repository</span>
+        </span>
+      </a>
+      <nav>
+        <a href="#debian">Debian / Ubuntu</a>
+        <a href="#arch">Arch Linux</a>
+        <a href="keys/repo.asc">Public key</a>
+        <a href="https://github.com/googolmo/repo">GitHub</a>
+      </nav>
+    </header>
+
+    <h1>Add the MOSUMI package source</h1>
+    <p class="lede">
+      This GitHub Pages site hosts the APT repository, Pacman repository,
+      and OpenPGP public key used to verify package signatures.
+    </p>
+
+    <div class="meta">
+      <article>
+        <dl>
+          <dt>Base URL</dt>
+          <dd>https://googolmo.github.io/repo/</dd>
+        </dl>
+      </article>
+      <article>
+        <dl>
+          <dt>Key fingerprint</dt>
+          <dd>91FD A448 7920 8693 204E  90EE 9DF4 2B70 54F1 CB5B</dd>
+        </dl>
+      </article>
+      <article>
+        <dl>
+          <dt>Key ID</dt>
+          <dd>9DF42B7054F1CB5B</dd>
+        </dl>
+      </article>
+      <article>
+        <dl>
+          <dt>Signer</dt>
+          <dd>MOSUMI (Linux package signing)</dd>
+        </dl>
+      </article>
+    </div>
+
+    <div class="grid" id="setup">
+      <section class="card" id="debian">
+        <h2>Debian / Ubuntu</h2>
+        <p>Install the signing key, then drop in the DEB822 source file.</p>
+        <ol class="steps">
+          <li>Download the binary keyring to <code>/usr/share/keyrings</code>.</li>
+          <li>Install <a href="ubuntu/repo.sources">ubuntu/repo.sources</a>.</li>
+          <li>Run <code>apt update</code>.</li>
+        </ol>
+        <pre data-copy><code>sudo mkdir -p /usr/share/keyrings
+sudo curl -fsSL https://googolmo.github.io/repo/keys/repo.gpg \
+  -o /usr/share/keyrings/repo-archive-keyring.gpg
+sudo chmod 644 /usr/share/keyrings/repo-archive-keyring.gpg
+sudo curl -fsSL https://googolmo.github.io/repo/ubuntu/repo.sources \
+  -o /etc/apt/sources.list.d/repo.sources
+sudo apt update</code></pre>
+        <p class="note">
+          Older APT setups can use
+          <a href="ubuntu/repo.list">ubuntu/repo.list</a>
+          instead of the <code>.sources</code> file.
+          Repository files live under <a href="ubuntu/">ubuntu/</a>.
+        </p>
+      </section>
+
+      <section class="card" id="arch">
+        <h2>Arch Linux / Pacman</h2>
+        <p>Import and locally sign the key, then include the repo snippet.</p>
+        <ol class="steps">
+          <li>Add and locally sign key <code>9DF42B7054F1CB5B</code>.</li>
+          <li>Install <a href="pacman/repo.conf">pacman/repo.conf</a>.</li>
+          <li>Include it from <code>/etc/pacman.conf</code> and sync.</li>
+        </ol>
+        <pre data-copy><code>curl -fsSL https://googolmo.github.io/repo/keys/repo.asc | sudo pacman-key --add -
+sudo pacman-key --lsign-key 91FDA44879208693204E90EE9DF42B7054F1CB5B
+sudo curl -fsSL https://googolmo.github.io/repo/pacman/repo.conf \
+  -o /etc/pacman.d/repo
+echo -e '\nInclude = /etc/pacman.d/repo' | sudo tee -a /etc/pacman.conf
+sudo pacman -Sy</code></pre>
+        <p class="note">
+          Packages are served from
+          <code>https://googolmo.github.io/repo/pacman/$arch</code>
+          (<a href="pacman/x86_64/">x86_64</a>,
+          <a href="pacman/aarch64/">aarch64</a>).
+        </p>
+      </section>
+    </div>
+
+    <section class="section">
+      <h2>Files</h2>
+      <div class="files">
+        <a href="keys/repo.asc"><strong>OpenPGP public key (ASCII)</strong><span>keys/repo.asc</span></a>
+        <a href="keys/repo.gpg"><strong>OpenPGP public key (binary)</strong><span>keys/repo.gpg</span></a>
+        <a href="ubuntu/repo.sources"><strong>APT DEB822 source</strong><span>ubuntu/repo.sources</span></a>
+        <a href="ubuntu/repo.list"><strong>APT sources.list snippet</strong><span>ubuntu/repo.list</span></a>
+        <a href="pacman/repo.conf"><strong>Pacman repository snippet</strong><span>pacman/repo.conf</span></a>
+      </div>
+    </section>
+
+    <footer>
+      <span>MOSUMI Linux package repository · hosted on GitHub Pages</span>
+      <a href="https://github.com/googolmo/repo">github.com/googolmo/repo</a>
+    </footer>
+  </div>
+  <script src="assets/site.js"></script>
+</body>
+</html>

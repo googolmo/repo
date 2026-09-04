@@ -1,0 +1,10 @@
+# Linux package repository (DEB822)
+# Install the keyring first:
+#   sudo curl -fsSL https://googolmo.github.io/repo/keys/repo.gpg \
+#     -o /usr/share/keyrings/repo-archive-keyring.gpg
+Types: deb
+URIs: https://googolmo.github.io/repo/ubuntu
+Suites: stable
+Components: main
+Architectures: amd64 arm64
+Signed-By: /usr/share/keyrings/repo-archive-keyring.gpg
