@@ -8,7 +8,7 @@ per-file ``_redirects`` rules. Each GitHub Release owns a fragment under
 file is assembled from those fragments so updating one tag does not drop
 older 302s.
 
-  ubuntu/dists/{ubuntu22.04,ubuntu24.04,ubuntu26.04}/
+  ubuntu/dists/{noble,resolute}/
   ubuntu/repo.sources + ubuntu/repo.list
   pacman/{x86_64,aarch64}/repo.db + repo.db.sig
   ubuntu/_redirects.d/<owner>/<repo>/<tag>/_redirects
@@ -79,8 +79,12 @@ CPU_TO_PACMAN_ARCH = {
     "aarch64": "aarch64",
 }
 
-ALL_SUITES = ("ubuntu22.04", "ubuntu24.04", "ubuntu26.04")
-DEFAULT_SUITE = "ubuntu22.04"
+SUITE_BY_BUILD = {
+    "ubuntu24.04": "noble",
+    "ubuntu26.04": "resolute",
+}
+ALL_SUITES = ("noble", "resolute")
+DEFAULT_SUITE = "noble"
 ALL_DEB_ARCHES = ("amd64", "arm64")
 ALL_PACMAN_ARCHES = ("x86_64", "aarch64")
 
@@ -148,6 +152,14 @@ def parse_deb_filename(name: str) -> tuple[str, str, str]:
             "imprint_<ver>_ubuntuXX.YY_<cpu>.deb"
         )
     return match.group("version"), match.group("suite"), match.group("cpu")
+
+
+def apt_suite_for_build(build: str) -> str:
+    suite = SUITE_BY_BUILD.get(build)
+    if suite is None:
+        supported = ", ".join(SUITE_BY_BUILD)
+        raise SystemExit(f"unsupported ubuntu build {build!r}; expected {supported}")
+    return suite
 
 
 def parse_pkg_filename(name: str) -> tuple[str, str]:
@@ -627,8 +639,8 @@ def render_repo_sources() -> str:
         "# Install the keyring first:\n"
         f"#   sudo curl -fsSL {PAGES_BASE}/keys/repo.gpg \\\n"
         "#     -o /usr/share/keyrings/repo-archive-keyring.gpg\n"
-        f"# Default suite is {DEFAULT_SUITE} (Debian 12+ / widest glibc range).\n"
-        "# Use Suites: ubuntu24.04 or ubuntu26.04 for those newer-glibc builds instead.\n"
+        f"# Default suite is {DEFAULT_SUITE} (Ubuntu 24.04).\n"
+        "# Use Suites: resolute for Ubuntu 26.04 builds instead.\n"
         "Types: deb\n"
         f"URIs: {PAGES_BASE}/ubuntu\n"
         f"Suites: {DEFAULT_SUITE}\n"
@@ -648,18 +660,15 @@ def render_repo_list() -> str:
     )
 
 
-def render_readme(github_repo: str, tag: str) -> str:
-    release = release_base_url(github_repo, tag)
+def render_readme() -> str:
     return f"""# Linux package repository
 
-APT (Debian / Ubuntu) and Pacman (Arch Linux) **indexes** for Imprint, served
+APT (Debian / Ubuntu) and Pacman (Arch Linux) **indexes**, served
 from Cloudflare Pages. Package files are **not** stored in this git tree:
 Cloudflare 302s each `.deb` and Pacman `.pkg.tar.*` to the matching
-[GitHub Release](https://github.com/{github_repo}/releases/tag/{tag}) asset.
+GitHub Release asset.
 
 **Base URL:** {PAGES_BASE}/
-
-Current Imprint release: `{tag}` → `{release}/`
 
 Connect this repository to **Cloudflare Pages** (build command empty, output
 directory `/`) so the assembled root `_redirects` is honoured. Per-release
@@ -690,13 +699,12 @@ sudo chmod 644 /usr/share/keyrings/repo-archive-keyring.gpg
 sudo curl -fsSL {PAGES_BASE}/ubuntu/repo.sources \\
   -o /etc/apt/sources.list.d/repo.sources
 sudo apt update
-sudo apt install imprint
 ```
 
-`ubuntu/repo.sources` uses suite `{DEFAULT_SUITE}` (Debian 12+ / widest
-glibc). Suites `ubuntu24.04` and `ubuntu26.04` exist for the newer-glibc
-builds (amd64 and arm64). `Filename` in `Packages` is a per-file pool path
-under `ubuntu/pool/github/`; Cloudflare 302s that exact file to `{release}/`.
+`ubuntu/repo.sources` uses suite `{DEFAULT_SUITE}` (Ubuntu 24.04). Suite
+`resolute` is Ubuntu 26.04 (amd64 and arm64). `Filename` in `Packages` is a
+per-file pool path under `ubuntu/pool/github/`; Cloudflare 302s that exact
+file to its GitHub Release asset.
 
 ## Arch Linux (Pacman)
 
@@ -706,20 +714,20 @@ sudo pacman-key --lsign-key {REPO_KEY_ID}
 sudo curl -fsSL {PAGES_BASE}/pacman/repo.conf \\
   -o /etc/pacman.d/repo
 echo -e '\\nInclude = /etc/pacman.d/repo' | sudo tee -a /etc/pacman.conf
-sudo pacman -Sy imprint
+sudo pacman -Sy
 ```
 
 `repo.db` and `repo.db.sig` are under `pacman/x86_64/` and
 `pacman/aarch64/`. Each `.pkg.tar.zst` / `.pkg.tar.xz` is 302'd from
-`/pacman/$arch/<file>` to `{release}/`.
+`/pacman/$arch/<file>` to its GitHub Release asset.
 
 ## Updating the index
 
-Imprint's Release workflow dispatches this repository's `update-index` action
-with the new tag. Manual run (empty tag = latest):
+A GitHub Release workflow can dispatch this repository's `update-index`
+action with the new tag. Manual run (empty tag = latest):
 
 ```bash
-gh workflow run update-index.yml -R googolmo/repo -f github_repo={github_repo} -f tag={tag}
+gh workflow run update-index.yml -R googolmo/repo -f github_repo=OWNER/REPO -f tag=vX.Y.Z
 ```
 
 Secrets on this repository:
@@ -738,7 +746,7 @@ Secrets on this repository:
 ├── ubuntu/
 │   ├── repo.sources
 │   ├── repo.list
-│   ├── dists/{{ubuntu22.04,ubuntu24.04,ubuntu26.04}}/
+│   ├── dists/{{noble,resolute}}/
 │   │   └── main/{{binary-amd64,binary-arm64,source}}/
 │   ├── _redirects.d/<owner>/<repo>/<tag>/_redirects
 │   └── pool/github/...        virtual; not stored, 302 per file
@@ -985,7 +993,7 @@ def _gh_pattern_missing(output: str) -> bool:
 def download_assets(github_repo: str, tag: str, dest: Path) -> None:
     dest.mkdir(parents=True, exist_ok=True)
     if shutil.which("gh"):
-        # One pattern per call so a missing ubuntu22.04/24.04/26.04 .deb
+        # One pattern per call so a missing noble/resolute .deb
         # (or a missing pacman arch) does not fail the whole download.
         for pattern in DOWNLOAD_PATTERNS:
             cmd = [
@@ -1042,13 +1050,12 @@ def collect_debs(assets_dir: Path, *, github_repo: str, tag: str) -> list[dict[s
         return []
     expected_ver = version_from_tag(tag)
     for path in debs:
-        file_ver, suite, cpu = parse_deb_filename(path.name)
+        file_ver, build, cpu = parse_deb_filename(path.name)
         if file_ver != expected_ver:
             raise SystemExit(
                 f"{path.name}: version {file_ver} does not match tag {tag}"
             )
-        if suite not in ALL_SUITES:
-            raise SystemExit(f"{path.name}: unsupported ubuntu suite {suite}")
+        suite = apt_suite_for_build(build)
         size, md5, sha1, sha256 = hash_file(path)
         fields = dpkg_control(path)
         deb_arch = CPU_TO_DEB_ARCH[cpu]
@@ -1595,7 +1602,7 @@ def apply(
         print(f"wrote {repo_list}")
 
         readme = repo_dir / "README.md"
-        readme.write_text(render_readme(github_repo, resolved), encoding="utf-8")
+        readme.write_text(render_readme(), encoding="utf-8")
         print(f"wrote {readme}")
         rewrite_site_urls(repo_dir)
     finally:
@@ -1677,8 +1684,8 @@ def _self_test() -> None:
     if version_from_tag(tag) != "0.1.4":
         raise SystemExit("version_from_tag failed")
 
-    ver, suite, cpu = parse_deb_filename("imprint_0.1.4_ubuntu22.04_x86_64.deb")
-    if (ver, suite, cpu) != ("0.1.4", "ubuntu22.04", "x86_64"):
+    ver, suite, cpu = parse_deb_filename("imprint_0.1.4_ubuntu24.04_x86_64.deb")
+    if (ver, suite, cpu) != ("0.1.4", "ubuntu24.04", "x86_64"):
         raise SystemExit("parse_deb_filename failed")
     try:
         parse_deb_filename("imprint_0.1.4_amd64.deb")
@@ -1686,9 +1693,19 @@ def _self_test() -> None:
         pass
     else:
         raise SystemExit("should reject untagged .deb names")
+    if apt_suite_for_build("ubuntu24.04") != "noble":
+        raise SystemExit("ubuntu24.04 must map to noble")
+    if apt_suite_for_build("ubuntu26.04") != "resolute":
+        raise SystemExit("ubuntu26.04 must map to resolute")
+    try:
+        apt_suite_for_build("ubuntu22.04")
+    except SystemExit:
+        pass
+    else:
+        raise SystemExit("ubuntu22.04 must be rejected")
 
-    filename = pool_filename(repo, tag, "imprint_0.1.4_ubuntu22.04_x86_64.deb")
-    if filename != "pool/github/googolmo/imprint/v0.1.4/imprint_0.1.4_ubuntu22.04_x86_64.deb":
+    filename = pool_filename(repo, tag, "imprint_0.1.4_ubuntu24.04_x86_64.deb")
+    if filename != "pool/github/googolmo/imprint/v0.1.4/imprint_0.1.4_ubuntu24.04_x86_64.deb":
         raise SystemExit(f"pool_filename mismatch: {filename}")
 
     control = parse_control(
@@ -1736,12 +1753,12 @@ def _self_test() -> None:
     redirects = render_redirects(
         github_repo=repo,
         tag=tag,
-        deb_assets=["imprint_0.1.4_ubuntu22.04_x86_64.deb"],
+        deb_assets=["imprint_0.1.4_ubuntu24.04_x86_64.deb"],
         pkg_assets=[("x86_64", "imprint_0.1.4_archlinux_x86_64.pkg.tar.zst")],
     )
     if "/ubuntu/pool/github/googolmo/imprint/v0.1.4/" not in redirects:
         raise SystemExit("redirects missing deb path")
-    if f"{base}/imprint_0.1.4_ubuntu22.04_x86_64.deb 302" not in redirects:
+    if f"{base}/imprint_0.1.4_ubuntu24.04_x86_64.deb 302" not in redirects:
         raise SystemExit("redirects missing GitHub dest")
     if "/pacman/x86_64/imprint_0.1.4_archlinux_x86_64.pkg.tar.zst" not in redirects:
         raise SystemExit("redirects missing pacman path")
@@ -1791,7 +1808,7 @@ def _self_test() -> None:
     )
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
-        deb_path = root / "imprint_0.1.4_ubuntu22.04_x86_64.deb"
+        deb_path = root / "imprint_0.1.4_ubuntu24.04_x86_64.deb"
         deb_path.write_bytes(deb)
         parsed = deb_control_from_ar(deb_path)
         if parsed["Package"] != "imprint" or parsed["Version"] != "0.1.4":
@@ -1802,27 +1819,27 @@ def _self_test() -> None:
         if collect_debs(empty_dir, github_repo=repo, tag=tag) != []:
             raise SystemExit("collect_debs must ignore a missing ubuntu .deb set")
 
-        only_2204 = root / "only-ubuntu22.04"
-        only_2204.mkdir()
-        shutil.copyfile(deb_path, only_2204 / deb_path.name)
-        subset = collect_debs(only_2204, github_repo=repo, tag=tag)
-        if len(subset) != 1 or subset[0]["_suite"] != "ubuntu22.04":
-            raise SystemExit("collect_debs must accept a subset of ubuntu suites")
+        only_noble = root / "only-noble"
+        only_noble.mkdir()
+        shutil.copyfile(deb_path, only_noble / deb_path.name)
+        subset = collect_debs(only_noble, github_repo=repo, tag=tag)
+        if len(subset) != 1 or subset[0]["_suite"] != "noble":
+            raise SystemExit("collect_debs must map ubuntu24.04 builds to noble")
         if _gh_pattern_missing("no assets match the file pattern") is False:
             raise SystemExit("must treat gh 'no assets match' as a missing pattern")
         if _gh_pattern_missing("HTTP 403 forbidden"):
             raise SystemExit("must not ignore real gh download failures")
 
         dist = root / "ubuntu" / "dists"
-        write_suite(dist, "ubuntu26.04", [])
+        write_suite(dist, "resolute", [])
         for arch in ALL_DEB_ARCHES:
-            pkg = dist / "ubuntu26.04" / "main" / f"binary-{arch}" / "Packages"
+            pkg = dist / "resolute" / "main" / f"binary-{arch}" / "Packages"
             if not pkg.exists() or pkg.read_bytes() != b"":
                 raise SystemExit(f"empty suite Packages missing for {arch}")
-        sources_path = dist / "ubuntu26.04" / "main" / "source" / "Sources"
+        sources_path = dist / "resolute" / "main" / "source" / "Sources"
         if not sources_path.exists():
             raise SystemExit("Sources missing")
-        rel = (dist / "ubuntu26.04" / "Release").read_text(encoding="utf-8")
+        rel = (dist / "resolute" / "Release").read_text(encoding="utf-8")
         if "Architectures: amd64 arm64" not in rel:
             raise SystemExit("empty suite Release missing architectures")
         if "main/source/Sources" not in rel:

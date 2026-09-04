@@ -1,10 +1,7 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
-
 Origin: MOSUMI
 Label: MOSUMI
-Suite: ubuntu26.04
-Codename: ubuntu26.04
+Suite: resolute
+Codename: resolute
 Date: Fri, 04 Sep 2026 09:54:37 GMT
 Architectures: amd64 arm64
 Components: main
@@ -31,19 +28,3 @@ SHA256:
  ca984790923e82d180245d9a489ff2fe4d4d85c18046f70b7072b1acc249e6f6              512 main/binary-arm64/Packages.gz
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/source/Sources
  f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec               20 main/source/Sources.gz
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEiRq3fLeIlPsLT7tUQzsdnT+T45EFAmqalV0ACgkQQzsdnT+T
-45FjNQ/+Nv1lMsOEDhKsbE7pqQpVXc9f3ecLmMjjk9KnFg0LkjElq5wumMO44CCS
-de9My1IXC8X7OxS1jVpmlFZxqbgNx8Ct7/PGPcqeErwbmdyJrxqBJw+GBA6qmG/N
-sUTTkSMiWIvRnzWc2Fs1GxQ8MCiyj0+C8sU/WDK4WCdpt8SiE9q0nhFOVMhq1WjL
-G6Lf+J+TZyy0aIkenCGiS6uVYpO5FI+2+2kq5L82csoaKAEEiHBLnyr58XosDbJT
-KO+y2P//DlbsQdVC3Dx3Sg2G4VJiyHoi+BcKl0iCGiarvpwaXAsEuxiqvpXkcvQI
-5V70N6dZTWFKsVQfluV+5PUo87MjlinttjxHze73ttT/4fn+WtlnWeZijp4gjUKw
-hi5kDS+kESHH20HX5MgsmyB2inRI3AP/jbj7ajavsSwgTr8FJVuUDiiWAd96uo5A
-3zj7+pIiFatrks1F9YFKLV13H3eAuKkXCVaw8tGHjf21PAtVyz/Mm9HbizUStBG9
-rKLodpY9paUTbLtkjJUtMi76zuqHNbLobrWENVu7JOGuh4lAvUVDUlUyfPFrv3hW
-bm7n/RN9MuUut8I8eUWpV0dwqADipW6cU7+LJRXJiv8s49WQZGb9ClajiIUzHYC6
-grgxbv+j5hExxgAE4DrIluUWbRgyv4pqefaHWxhf+r6YIqFlXIo=
-=va/F
------END PGP SIGNATURE-----

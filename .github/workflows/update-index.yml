@@ -94,7 +94,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "tag=${TAG} repo=${IMPRINT_REPO}"
-          for suite in ubuntu22.04 ubuntu24.04 ubuntu26.04; do
+          for suite in noble resolute; do
             test -f "ubuntu/dists/${suite}/InRelease"
             test -f "ubuntu/dists/${suite}/Release.gpg"
             test -f "ubuntu/dists/${suite}/main/binary-amd64/Packages"

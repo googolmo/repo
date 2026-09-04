@@ -36,7 +36,7 @@
 
     <section class="card">
       <h2>Add the APT source</h2>
-      <p>Recommended on Debian 12+, Ubuntu 22.04+, and newer.</p>
+      <p>Recommended on Ubuntu 24.04+, Debian 13+, and newer.</p>
       <pre data-copy><code>sudo mkdir -p /usr/share/keyrings
 sudo curl -fsSL https://repo-cr4.pages.dev/keys/repo.gpg \
   -o /usr/share/keyrings/repo-archive-keyring.gpg
@@ -48,10 +48,9 @@ sudo apt install imprint</code></pre>
       <p class="note">
         For the one-line <code>sources.list</code> format, use
         <a href="repo.list">repo.list</a> instead of <a href="repo.sources">repo.sources</a>.
-        Default suite is <code>ubuntu22.04</code> (Debian 12+ / widest glibc).
-        Suites <code>ubuntu24.04</code> and <code>ubuntu26.04</code> cover
-        the newer-glibc builds. Architectures: <code>amd64</code> and
-        <code>arm64</code>.
+        Default suite is <code>noble</code> (Ubuntu 24.04).
+        Suite <code>resolute</code> covers Ubuntu 26.04. Architectures:
+        <code>amd64</code> and <code>arm64</code>.
       </p>
     </section>
 
@@ -65,7 +64,7 @@ sudo apt install imprint</code></pre>
     </section>
 
     <footer>
-      <span>Suite <code>ubuntu22.04</code> · component <code>main</code></span>
+      <span>Suite <code>noble</code> · component <code>main</code></span>
       <a href="../">Back to index</a>
     </footer>
   </div>

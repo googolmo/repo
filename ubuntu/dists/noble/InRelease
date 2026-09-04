@@ -1,7 +1,10 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
 Origin: MOSUMI
 Label: MOSUMI
-Suite: ubuntu24.04
-Codename: ubuntu24.04
+Suite: noble
+Codename: noble
 Date: Fri, 04 Sep 2026 09:54:37 GMT
 Architectures: amd64 arm64
 Components: main
@@ -28,3 +31,19 @@ SHA256:
  8be5111ec7ffccd3ae3c2ab84980b3a55bfbee766f329d0a9a4a0a4a218bcd7e              511 main/binary-arm64/Packages.gz
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/source/Sources
  f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec               20 main/source/Sources.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEiRq3fLeIlPsLT7tUQzsdnT+T45EFAmqanhQACgkQQzsdnT+T
+45FAeBAAw5oZeffRUpcxnVe15Ad96SE1TL1vZ1lVaEzOnjxFD4AztVA6Uwdf87Fk
+0XJ0btpTdbMIUP5ANi16S6jmF4RNfl0HzSOLj+4UllE8HA/W4Ej60b8GhqjZNuUQ
+1j6E3M50b1hUWlLK7yrUnXVy6Pn+aICfXnqJpTEj4Sl7HZBEmZskQ4pd0mSh3AXf
+V+jwMF560OJIL6iE4v/czYfQHuway7t1H3oLu0EqjOxYiXhQQsP0TCnW4Th4fjpU
+Umnp7MWr+bIMGifMo7hKeo6asbWjVEmqPz0Eex8QbndL5cIcMmzVe4kqMB+qDa4C
+z5Y4ceVqGHRgkMD6gj+snDrHq8VmzXO43Tt+ij0FyBLGNPSvWaDS0n7cmmABhEDc
+wYQxe8AJ1ofcF+iBH9o4/54Cc+ulLYWs2g+eaupwlmD9W+eSLj3xV0yr7x+qJepP
+Hnp3PPg4rnzRbZFhkyHDBieM1omW/ZigVtdtn/hd3JsLUk7YcbNaWOdqDN/ER0IO
+vFmHDPc8OlNyHHa7T3iMQFV+5/+3e+Td/kOaYzfODffinbFdvYPKBu0L8OKOETVe
+oppruZ5QkdjxPhiN2oQN1TZWmgAf/fSXk+QB2/rrX1E0AU+vXkkwS8WE+7E0s8ii
+9nCjodB4UZGKEAwQ4j6e6l80Iu5DUY8UO5nNZsDU64c67hAenfE=
+=28ww
+-----END PGP SIGNATURE-----

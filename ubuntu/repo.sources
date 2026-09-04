@@ -2,11 +2,11 @@
 # Install the keyring first:
 #   sudo curl -fsSL https://repo-cr4.pages.dev/keys/repo.gpg \
 #     -o /usr/share/keyrings/repo-archive-keyring.gpg
-# Default suite is ubuntu22.04 (Debian 12+ / widest glibc range).
-# Use Suites: ubuntu24.04 or ubuntu26.04 for those newer-glibc builds instead.
+# Default suite is noble (Ubuntu 24.04).
+# Use Suites: resolute for Ubuntu 26.04 builds instead.
 Types: deb
 URIs: https://repo-cr4.pages.dev/ubuntu
-Suites: ubuntu22.04
+Suites: noble
 Components: main
 Architectures: amd64 arm64
 Signed-By: /usr/share/keyrings/repo-archive-keyring.gpg
