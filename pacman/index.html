@@ -29,7 +29,7 @@
 
     <h1>Pacman source</h1>
     <p class="lede">
-      Signed <code>repo.db</code> is published under <code>pacman/$arch</code>.
+      Signed <code>mosumi-repo.db</code> is published under <code>pacman/$arch</code>.
       Package files are fetched from Imprint GitHub Releases (and Cloudflare
       302s <code>.pkg.tar.zst</code> the same way).
     </p>
@@ -39,12 +39,12 @@
       <p>Import the signing key, install the snippet, and sync.</p>
       <pre data-copy><code>curl -fsSL https://repo-cr4.pages.dev/keys/repo.asc | sudo pacman-key --add -
 sudo pacman-key --lsign-key 9DF42B7054F1CB5B
-sudo curl -fsSL https://repo-cr4.pages.dev/pacman/repo.conf \
-  -o /etc/pacman.d/repo
-echo -e '\nInclude = /etc/pacman.d/repo' | sudo tee -a /etc/pacman.conf
+sudo curl -fsSL https://repo-cr4.pages.dev/pacman/mosumi-repo.conf \
+  -o /etc/pacman.d/mosumi-repo.conf
+echo -e '\nInclude = /etc/pacman.d/mosumi-repo.conf' | sudo tee -a /etc/pacman.conf
 sudo pacman -Sy imprint</code></pre>
       <p class="note">
-        The repository section name is <code>[repo]</code>.
+        The repository section name is <code>[mosumi-repo]</code>.
         Signed database files are under
         <a href="x86_64/">x86_64</a> and
         <a href="aarch64/">aarch64</a>.
@@ -54,7 +54,7 @@ sudo pacman -Sy imprint</code></pre>
     <section class="section">
       <h2>Files</h2>
       <div class="files">
-        <a href="repo.conf"><strong>Pacman repository snippet</strong><span>pacman/repo.conf</span></a>
+        <a href="mosumi-repo.conf"><strong>Pacman repository snippet</strong><span>pacman/mosumi-repo.conf</span></a>
         <a href="../keys/repo.asc"><strong>ASCII public key</strong><span>keys/repo.asc</span></a>
       </div>
     </section>

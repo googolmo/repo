@@ -3,17 +3,17 @@
   Cache-Control: public, max-age=60
   X-Content-Type-Options: nosniff
 
-/pacman/repo.conf
+/pacman/mosumi-repo.conf
   Cache-Control: public, max-age=60
   Content-Type: text/plain; charset=utf-8
 
-/pacman/*/repo.db*
+/pacman/*/mosumi-repo.db*
   Cache-Control: public, max-age=60
 
-/ubuntu/repo.sources
+/ubuntu/mosumi-repo.sources
   Cache-Control: public, max-age=60
   Content-Type: text/plain; charset=utf-8
 
-/ubuntu/repo.list
+/ubuntu/mosumi-repo.list
   Cache-Control: public, max-age=60
   Content-Type: text/plain; charset=utf-8

@@ -41,13 +41,13 @@
 sudo curl -fsSL https://repo-cr4.pages.dev/keys/repo.gpg \
   -o /usr/share/keyrings/repo-archive-keyring.gpg
 sudo chmod 644 /usr/share/keyrings/repo-archive-keyring.gpg
-sudo curl -fsSL https://repo-cr4.pages.dev/ubuntu/repo.sources \
-  -o /etc/apt/sources.list.d/repo.sources
+sudo curl -fsSL https://repo-cr4.pages.dev/ubuntu/mosumi-repo.sources \
+  -o /etc/apt/sources.list.d/mosumi-repo.sources
 sudo apt update
 sudo apt install imprint</code></pre>
       <p class="note">
         For the one-line <code>sources.list</code> format, use
-        <a href="repo.list">repo.list</a> instead of <a href="repo.sources">repo.sources</a>.
+        <a href="mosumi-repo.list">mosumi-repo.list</a> instead of <a href="mosumi-repo.sources">mosumi-repo.sources</a>.
         Default suite is <code>noble</code> (Ubuntu 24.04).
         Suite <code>resolute</code> covers Ubuntu 26.04. Architectures:
         <code>amd64</code> and <code>arm64</code>.
@@ -57,8 +57,8 @@ sudo apt install imprint</code></pre>
     <section class="section">
       <h2>Files</h2>
       <div class="files">
-        <a href="repo.sources"><strong>DEB822 source</strong><span>ubuntu/repo.sources</span></a>
-        <a href="repo.list"><strong>One-line source list</strong><span>ubuntu/repo.list</span></a>
+        <a href="mosumi-repo.sources"><strong>DEB822 source</strong><span>ubuntu/mosumi-repo.sources</span></a>
+        <a href="mosumi-repo.list"><strong>One-line source list</strong><span>ubuntu/mosumi-repo.list</span></a>
         <a href="../keys/repo.gpg"><strong>Binary public key</strong><span>keys/repo.gpg</span></a>
       </div>
     </section>

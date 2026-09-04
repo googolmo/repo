@@ -70,20 +70,20 @@
         <p>Install the signing key, then drop in the DEB822 source file.</p>
         <ol class="steps">
           <li>Download the binary keyring to <code>/usr/share/keyrings</code>.</li>
-          <li>Install <a href="ubuntu/repo.sources">ubuntu/repo.sources</a>.</li>
+          <li>Install <a href="ubuntu/mosumi-repo.sources">ubuntu/mosumi-repo.sources</a>.</li>
           <li>Run <code>apt update</code> and <code>apt install imprint</code>.</li>
         </ol>
         <pre data-copy><code>sudo mkdir -p /usr/share/keyrings
 sudo curl -fsSL https://repo-cr4.pages.dev/keys/repo.gpg \
   -o /usr/share/keyrings/repo-archive-keyring.gpg
 sudo chmod 644 /usr/share/keyrings/repo-archive-keyring.gpg
-sudo curl -fsSL https://repo-cr4.pages.dev/ubuntu/repo.sources \
-  -o /etc/apt/sources.list.d/repo.sources
+sudo curl -fsSL https://repo-cr4.pages.dev/ubuntu/mosumi-repo.sources \
+  -o /etc/apt/sources.list.d/mosumi-repo.sources
 sudo apt update
 sudo apt install imprint</code></pre>
         <p class="note">
           Older APT setups can use
-          <a href="ubuntu/repo.list">ubuntu/repo.list</a>
+          <a href="ubuntu/mosumi-repo.list">ubuntu/mosumi-repo.list</a>
           instead of the <code>.sources</code> file.
           <code>Packages</code> lives under <a href="ubuntu/">ubuntu/</a>
           for suites <code>noble</code> and <code>resolute</code>
@@ -95,22 +95,22 @@ sudo apt install imprint</code></pre>
       <section class="card" id="arch">
         <h2>Arch Linux / Pacman</h2>
         <p>Import the signing key, install the repo snippet, then sync.
-          <code>repo.db</code> is here; <code>.pkg.tar.zst</code> is fetched
+          <code>mosumi-repo.db</code> is here; <code>.pkg.tar.zst</code> is fetched
           from GitHub Releases.</p>
         <ol class="steps">
           <li>Add and locally sign <a href="keys/repo.asc">keys/repo.asc</a>.</li>
-          <li>Install <a href="pacman/repo.conf">pacman/repo.conf</a>.</li>
+          <li>Install <a href="pacman/mosumi-repo.conf">pacman/mosumi-repo.conf</a>.</li>
           <li>Include it from <code>/etc/pacman.conf</code>.</li>
           <li>Run <code>pacman -Sy imprint</code>.</li>
         </ol>
         <pre data-copy><code>curl -fsSL https://repo-cr4.pages.dev/keys/repo.asc | sudo pacman-key --add -
 sudo pacman-key --lsign-key 9DF42B7054F1CB5B
-sudo curl -fsSL https://repo-cr4.pages.dev/pacman/repo.conf \
-  -o /etc/pacman.d/repo
-echo -e '\nInclude = /etc/pacman.d/repo' | sudo tee -a /etc/pacman.conf
+sudo curl -fsSL https://repo-cr4.pages.dev/pacman/mosumi-repo.conf \
+  -o /etc/pacman.d/mosumi-repo.conf
+echo -e '\nInclude = /etc/pacman.d/mosumi-repo.conf' | sudo tee -a /etc/pacman.conf
 sudo pacman -Sy imprint</code></pre>
         <p class="note">
-          Signed <code>repo.db</code> is under
+          Signed <code>mosumi-repo.db</code> is under
           <a href="pacman/x86_64/">x86_64</a> and
           <a href="pacman/aarch64/">aarch64</a>.
         </p>
@@ -122,9 +122,9 @@ sudo pacman -Sy imprint</code></pre>
       <div class="files">
         <a href="keys/repo.asc"><strong>OpenPGP public key (ASCII)</strong><span>keys/repo.asc</span></a>
         <a href="keys/repo.gpg"><strong>OpenPGP public key (binary)</strong><span>keys/repo.gpg</span></a>
-        <a href="ubuntu/repo.sources"><strong>APT DEB822 source</strong><span>ubuntu/repo.sources</span></a>
-        <a href="ubuntu/repo.list"><strong>APT sources.list snippet</strong><span>ubuntu/repo.list</span></a>
-        <a href="pacman/repo.conf"><strong>Pacman repository snippet</strong><span>pacman/repo.conf</span></a>
+        <a href="ubuntu/mosumi-repo.sources"><strong>APT DEB822 source</strong><span>ubuntu/mosumi-repo.sources</span></a>
+        <a href="ubuntu/mosumi-repo.list"><strong>APT sources.list snippet</strong><span>ubuntu/mosumi-repo.list</span></a>
+        <a href="pacman/mosumi-repo.conf"><strong>Pacman repository snippet</strong><span>pacman/mosumi-repo.conf</span></a>
       </div>
     </section>
 

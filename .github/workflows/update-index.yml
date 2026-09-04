@@ -17,7 +17,7 @@
 # Secrets (this repository):
 #   GPG_PRIVATE_KEY     OpenPGP secret matching keys/repo.asc (required).
 #                       Signs ubuntu/dists/*/InRelease, Release.gpg, and
-#                       pacman/$arch/repo.db.sig. Overridden by
+#                       pacman/$arch/mosumi-repo.db.sig. Overridden by
 #                       --gpg-private-key if the generator is given a file.
 #   GPG_PASSPHRASE      Optional passphrase for GPG_PRIVATE_KEY.
 #
@@ -105,20 +105,22 @@ jobs:
           owner="${IMPRINT_REPO%/*}"
           name="${IMPRINT_REPO#*/}"
           test -f "pacman/_redirects.d/${owner}/${name}/${TAG}/_redirects"
-          test -f ubuntu/repo.sources
-          test -f ubuntu/repo.list
-          test -f pacman/repo.conf
-          test -f pacman/x86_64/repo.db
-          test -f pacman/x86_64/repo.db.sig
-          test -f pacman/x86_64/repo.db.tar.gz.sig
-          test -f pacman/aarch64/repo.db
-          test -f pacman/aarch64/repo.db.sig
-          test -f pacman/aarch64/repo.db.tar.gz.sig
+          test -f ubuntu/mosumi-repo.sources
+          test -f ubuntu/mosumi-repo.list
+          test -f pacman/mosumi-repo.conf
+          test -f pacman/x86_64/mosumi-repo.db
+          test -f pacman/x86_64/mosumi-repo.db.sig
+          test -f pacman/x86_64/mosumi-repo.db.tar.gz.sig
+          test -f pacman/aarch64/mosumi-repo.db
+          test -f pacman/aarch64/mosumi-repo.db.sig
+          test -f pacman/aarch64/mosumi-repo.db.tar.gz.sig
           grep -F "releases/download/${TAG}/" _redirects
           grep -F "Server = https://github.com/${IMPRINT_REPO}/releases/download/${TAG}" \
-            pacman/repo.conf
-          grep -F "SigLevel = PackageOptional DatabaseRequired" pacman/repo.conf
-          if grep -E 'releases/latest/download|:splat|/:owner/' _redirects pacman/repo.conf; then
+            pacman/mosumi-repo.conf
+          grep -F "SigLevel = PackageOptional DatabaseRequired" pacman/mosumi-repo.conf
+          grep -F "[mosumi-repo]" pacman/mosumi-repo.conf
+          grep -F "/etc/pacman.d/mosumi-repo.conf" pacman/mosumi-repo.conf
+          if grep -E 'releases/latest/download|:splat|/:owner/' _redirects pacman/mosumi-repo.conf; then
             echo "must not use /releases/latest/download or directory splat redirects" >&2
             exit 1
           fi
@@ -142,10 +144,10 @@ jobs:
             index.html \
             ubuntu/index.html \
             pacman/index.html \
-            ubuntu/repo.sources \
-            ubuntu/repo.list \
+            ubuntu/mosumi-repo.sources \
+            ubuntu/mosumi-repo.list \
             ubuntu/dists \
-            pacman/repo.conf \
+            pacman/mosumi-repo.conf \
             pacman/x86_64 \
             pacman/aarch64
           for dir in ubuntu/_redirects.d pacman/_redirects.d _redirects.d; do

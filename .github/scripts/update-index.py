@@ -9,8 +9,8 @@ file is assembled from those fragments so updating one tag does not drop
 older 302s.
 
   ubuntu/dists/{noble,resolute}/
-  ubuntu/repo.sources + ubuntu/repo.list
-  pacman/{x86_64,aarch64}/repo.db + repo.db.sig
+  ubuntu/mosumi-repo.sources + ubuntu/mosumi-repo.list
+  pacman/{x86_64,aarch64}/mosumi-repo.db + mosumi-repo.db.sig
   ubuntu/_redirects.d/<owner>/<repo>/<tag>/_redirects
   pacman/_redirects.d/<owner>/<repo>/<tag>/_redirects
   _redirects                 assembled Cloudflare 302s (do not edit)
@@ -58,6 +58,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 PAGES_BASE = os.environ.get("REPO_BASE_URL", "https://repo-cr4.pages.dev").rstrip("/")
 REPO_KEY_ID = "9DF42B7054F1CB5B"
 REPO_KEY_FINGERPRINT_DISPLAY = "91FD A448 7920 8693 204E  90EE 9DF4 2B70 54F1 CB5B"
+PACMAN_REPO_NAME = "mosumi-repo"
+PACMAN_CONF_NAME = f"{PACMAN_REPO_NAME}.conf"
+PACMAN_DB_NAME = f"{PACMAN_REPO_NAME}.db"
+PACMAN_DB_TAR_NAME = f"{PACMAN_REPO_NAME}.db.tar.gz"
+PACMAN_INCLUDE_PATH = f"/etc/pacman.d/{PACMAN_CONF_NAME}"
 
 DEB_NAME = re.compile(
     r"^imprint_(?P<version>[^_]+)_(?P<suite>ubuntu[\d.]+)_(?P<cpu>x86_64|amd64|arm64|aarch64)\.deb$"
@@ -615,18 +620,19 @@ def write_redirects(
 def render_pacman_conf(github_repo: str, tag: str) -> str:
     release = release_base_url(github_repo, tag)
     return (
-        "# Imprint Pacman repository.\n"
+        "# MOSUMI Pacman repository.\n"
         "# Install:\n"
         f"#   curl -fsSL {PAGES_BASE}/keys/repo.asc | sudo pacman-key --add -\n"
         f"#   sudo pacman-key --lsign-key {REPO_KEY_ID}\n"
-        f"#   sudo curl -fsSL {PAGES_BASE}/pacman/repo.conf \\\n"
-        "#     -o /etc/pacman.d/repo\n"
-        "#   echo 'Include = /etc/pacman.d/repo' | sudo tee -a /etc/pacman.conf\n"
+        f"#   sudo curl -fsSL {PAGES_BASE}/pacman/{PACMAN_CONF_NAME} \\\n"
+        f"#     -o {PACMAN_INCLUDE_PATH}\n"
+        f"#   echo 'Include = {PACMAN_INCLUDE_PATH}' | sudo tee -a /etc/pacman.conf\n"
         "#   sudo pacman -Sy imprint\n"
         "#\n"
-        "# First Server hosts repo.db + repo.db.sig (this Cloudflare Pages tree).\n"
+        f"# First Server hosts {PACMAN_DB_NAME} + {PACMAN_DB_NAME}.sig "
+        "(this Cloudflare Pages tree).\n"
         "# Package files 302 from /pacman/$arch/<file> to the Imprint GitHub Release.\n"
-        "[repo]\n"
+        f"[{PACMAN_REPO_NAME}]\n"
         "SigLevel = PackageOptional DatabaseRequired\n"
         f"Server = {PAGES_BASE}/pacman/$arch\n"
         f"Server = {release}\n"
@@ -685,7 +691,7 @@ updating one tag keeps older 302s. GitHub Pages cannot 302 `/pool`.
 - **Fingerprint:** `{REPO_KEY_FINGERPRINT_DISPLAY}`
 - **Key ID:** `{REPO_KEY_ID}`
 
-`update-index` signs `ubuntu/dists/*/InRelease` and `pacman/$arch/repo.db`
+`update-index` signs `ubuntu/dists/*/InRelease` and `pacman/$arch/{PACMAN_DB_NAME}`
 with `--gpg-private-key` if given, otherwise `GPG_PRIVATE_KEY` (must match
 `keys/repo.asc`). It does not use the local GnuPG keyring.
 
@@ -696,12 +702,12 @@ sudo mkdir -p /usr/share/keyrings
 sudo curl -fsSL {PAGES_BASE}/keys/repo.gpg \\
   -o /usr/share/keyrings/repo-archive-keyring.gpg
 sudo chmod 644 /usr/share/keyrings/repo-archive-keyring.gpg
-sudo curl -fsSL {PAGES_BASE}/ubuntu/repo.sources \\
-  -o /etc/apt/sources.list.d/repo.sources
+sudo curl -fsSL {PAGES_BASE}/ubuntu/mosumi-repo.sources \\
+  -o /etc/apt/sources.list.d/mosumi-repo.sources
 sudo apt update
 ```
 
-`ubuntu/repo.sources` uses suite `{DEFAULT_SUITE}` (Ubuntu 24.04). Suite
+`ubuntu/mosumi-repo.sources` uses suite `{DEFAULT_SUITE}` (Ubuntu 24.04). Suite
 `resolute` is Ubuntu 26.04 (amd64 and arm64). `Filename` in `Packages` is a
 per-file pool path under `ubuntu/pool/github/`; Cloudflare 302s that exact
 file to its GitHub Release asset.
@@ -711,13 +717,13 @@ file to its GitHub Release asset.
 ```bash
 curl -fsSL {PAGES_BASE}/keys/repo.asc | sudo pacman-key --add -
 sudo pacman-key --lsign-key {REPO_KEY_ID}
-sudo curl -fsSL {PAGES_BASE}/pacman/repo.conf \\
-  -o /etc/pacman.d/repo
-echo -e '\\nInclude = /etc/pacman.d/repo' | sudo tee -a /etc/pacman.conf
+sudo curl -fsSL {PAGES_BASE}/pacman/{PACMAN_CONF_NAME} \\
+  -o {PACMAN_INCLUDE_PATH}
+echo -e '\\nInclude = {PACMAN_INCLUDE_PATH}' | sudo tee -a /etc/pacman.conf
 sudo pacman -Sy
 ```
 
-`repo.db` and `repo.db.sig` are under `pacman/x86_64/` and
+`{PACMAN_DB_NAME}` and `{PACMAN_DB_NAME}.sig` are under `pacman/x86_64/` and
 `pacman/aarch64/`. Each `.pkg.tar.zst` / `.pkg.tar.xz` is 302'd from
 `/pacman/$arch/<file>` to its GitHub Release asset.
 
@@ -734,7 +740,7 @@ Secrets on this repository:
 
 | Secret | Role |
 | --- | --- |
-| `GPG_PRIVATE_KEY` | OpenPGP secret matching `keys/repo.asc`; signs APT `InRelease` and Pacman `repo.db` (overridden by `--gpg-private-key`) |
+| `GPG_PRIVATE_KEY` | OpenPGP secret matching `keys/repo.asc`; signs APT `InRelease` and Pacman `{PACMAN_DB_NAME}` (overridden by `--gpg-private-key`) |
 | `GPG_PASSPHRASE` | Optional passphrase for that key |
 
 ## Layout
@@ -744,16 +750,16 @@ Secrets on this repository:
 ├── _redirects                 assembled Cloudflare 302s (do not edit)
 ├── keys/
 ├── ubuntu/
-│   ├── repo.sources
-│   ├── repo.list
+│   ├── mosumi-repo.sources
+│   ├── mosumi-repo.list
 │   ├── dists/{{noble,resolute}}/
 │   │   └── main/{{binary-amd64,binary-arm64,source}}/
 │   ├── _redirects.d/<owner>/<repo>/<tag>/_redirects
 │   └── pool/github/...        virtual; not stored, 302 per file
 └── pacman/
-    ├── repo.conf
+    ├── mosumi-repo.conf
     ├── _redirects.d/<owner>/<repo>/<tag>/_redirects
-    ├── x86_64/                repo.db + repo.db.sig
+    ├── x86_64/                mosumi-repo.db + mosumi-repo.db.sig
     └── aarch64/
 ```
 """
@@ -1321,8 +1327,8 @@ def gpg_sign_detached(
 def gpg_sign_pacman_db(
     dest: Path, *, fingerprint: str, passphrase: str | None
 ) -> None:
-    db = dest / "repo.db"
-    tarball = dest / "repo.db.tar.gz"
+    db = dest / PACMAN_DB_NAME
+    tarball = dest / PACMAN_DB_TAR_NAME
     db_sig = gpg_sign_detached(db, fingerprint=fingerprint, passphrase=passphrase)
     if tarball.exists():
         tar_sig = tarball.with_name(tarball.name + ".sig")
@@ -1433,14 +1439,23 @@ def write_pacman_db(dest: Path, packages: list[tuple[str, str]]) -> None:
             info.mtime = 0
             tar.addfile(info, io.BytesIO(payload))
     data = buf.getvalue()
-    (dest / "repo.db.tar.gz").write_bytes(data)
-    (dest / "repo.db").write_bytes(data)
+    (dest / PACMAN_DB_TAR_NAME).write_bytes(data)
+    (dest / PACMAN_DB_NAME).write_bytes(data)
     for leftover in dest.glob("*.pkg.tar.*"):
         leftover.unlink()
-    for name in ("repo.db.sig", "repo.db.tar.gz.sig"):
-        sig = dest / name
-        if sig.exists() or sig.is_symlink():
-            sig.unlink()
+    for name in (
+        f"{PACMAN_DB_NAME}.sig",
+        f"{PACMAN_DB_TAR_NAME}.sig",
+        "repo.db",
+        "repo.db.sig",
+        "repo.db.tar.gz",
+        "repo.db.tar.gz.sig",
+    ):
+        stale = dest / name
+        if name in (PACMAN_DB_NAME, PACMAN_DB_TAR_NAME):
+            continue
+        if stale.exists() or stale.is_symlink():
+            stale.unlink()
 
 
 def collect_pkg_assets(assets_dir: Path) -> list[tuple[str, Path]]:
@@ -1487,7 +1502,10 @@ def apply(
     key_material: str | None = None
     key_source = ""
     if skip_sign:
-        print("skipping APT InRelease and Pacman repo.db signatures (--skip-sign)")
+        print(
+            f"skipping APT InRelease and Pacman {PACMAN_DB_NAME} "
+            "signatures (--skip-sign)"
+        )
     else:
         key_material, key_source = resolve_private_key_material(gpg_private_key)
         if not key_material:
@@ -1535,9 +1553,13 @@ def apply(
 
         pacman_dir = repo_dir / "pacman"
         pacman_dir.mkdir(parents=True, exist_ok=True)
-        conf = pacman_dir / "repo.conf"
+        conf = pacman_dir / PACMAN_CONF_NAME
         conf.write_text(render_pacman_conf(github_repo, resolved), encoding="utf-8")
         print(f"wrote {conf}")
+        stale_conf = pacman_dir / "repo.conf"
+        if stale_conf.exists() and stale_conf != conf:
+            stale_conf.unlink()
+            print(f"removed stale {stale_conf}")
 
         by_arch: dict[str, list[tuple[str, str]]] = {arch: [] for arch in ALL_PACMAN_ARCHES}
         for arch, path in pkg_rows:
@@ -1578,7 +1600,10 @@ def apply(
                     )
             for arch in ALL_PACMAN_ARCHES:
                 write_pacman_db(pacman_dir / arch, by_arch[arch])
-                print(f"wrote pacman/{arch}/repo.db ({len(by_arch[arch])} package(s))")
+                print(
+                    f"wrote pacman/{arch}/{PACMAN_DB_NAME} "
+                    f"({len(by_arch[arch])} package(s))"
+                )
                 if fingerprint is not None:
                     gpg_sign_pacman_db(
                         pacman_dir / arch,
@@ -1594,10 +1619,10 @@ def apply(
         else:
             write_indexes(None)
 
-        sources = repo_dir / "ubuntu" / "repo.sources"
+        sources = repo_dir / "ubuntu" / "mosumi-repo.sources"
         sources.write_text(render_repo_sources(), encoding="utf-8")
         print(f"wrote {sources}")
-        repo_list = repo_dir / "ubuntu" / "repo.list"
+        repo_list = repo_dir / "ubuntu" / "mosumi-repo.list"
         repo_list.write_text(render_repo_list(), encoding="utf-8")
         print(f"wrote {repo_list}")
 
@@ -1644,7 +1669,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--skip-sign",
         action="store_true",
-        help="Do not sign ubuntu/dists/*/InRelease or pacman/*/repo.db",
+        help=f"Do not sign ubuntu/dists/*/InRelease or pacman/*/{PACMAN_DB_NAME}",
     )
     parser.add_argument("--self-test", action="store_true")
     return parser.parse_args(argv)
@@ -1780,19 +1805,27 @@ def _self_test() -> None:
     if "/releases/latest/download/" in conf:
         raise SystemExit("must not use latest redirect")
     if "SigLevel = PackageOptional DatabaseRequired\n" not in conf:
-        raise SystemExit("pacman must require a signed repo.db")
+        raise SystemExit(f"pacman must require a signed {PACMAN_DB_NAME}")
+    if f"[{PACMAN_REPO_NAME}]\n" not in conf:
+        raise SystemExit(f"pacman snippet must use [{PACMAN_REPO_NAME}]")
+    if f"{PAGES_BASE}/pacman/{PACMAN_CONF_NAME}" not in conf:
+        raise SystemExit(f"pacman snippet must install {PACMAN_CONF_NAME}")
+    if PACMAN_INCLUDE_PATH not in conf:
+        raise SystemExit(f"pacman snippet must include {PACMAN_INCLUDE_PATH}")
+    if "/etc/pacman.d/repo\n" in conf or "/etc/pacman.d/repo " in conf:
+        raise SystemExit("pacman snippet must not use unbranded /etc/pacman.d/repo")
     if f"pacman-key --lsign-key {REPO_KEY_ID}" not in conf:
         raise SystemExit("pacman snippet must locally sign the repo key")
 
     sources = render_repo_sources()
     if f"URIs: {PAGES_BASE}/ubuntu\n" not in sources:
-        raise SystemExit("repo.sources URI mismatch")
+        raise SystemExit("mosumi-repo.sources URI mismatch")
     if "Architectures: amd64 arm64" not in sources:
-        raise SystemExit("repo.sources missing architectures")
+        raise SystemExit("mosumi-repo.sources missing architectures")
     if f"Suites: {DEFAULT_SUITE}\n" not in sources:
-        raise SystemExit("repo.sources missing default suite")
+        raise SystemExit("mosumi-repo.sources missing default suite")
     if f"deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/repo-archive-keyring.gpg] {PAGES_BASE}/ubuntu {DEFAULT_SUITE} main\n" not in render_repo_list():
-        raise SystemExit("repo.list mismatch")
+        raise SystemExit("mosumi-repo.list mismatch")
 
     control_text = (
         "Package: imprint\nVersion: 0.1.4\nArchitecture: amd64\nDescription: test\n"
@@ -1865,13 +1898,13 @@ def _self_test() -> None:
                 )
             ],
         )
-        db = root / "pacman" / "x86_64" / "repo.db"
+        db = root / "pacman" / "x86_64" / PACMAN_DB_NAME
         if not db.exists() or db.stat().st_size == 0:
-            raise SystemExit("repo.db not written")
+            raise SystemExit(f"{PACMAN_DB_NAME} not written")
         with tarfile.open(db, mode="r:gz") as tar:
             names = tar.getnames()
         if "imprint-0.1.4-1/desc" not in names:
-            raise SystemExit(f"repo.db missing desc: {names}")
+            raise SystemExit(f"{PACMAN_DB_NAME} missing desc: {names}")
 
         leftover = dist / "stable"
         leftover.mkdir(parents=True, exist_ok=True)
@@ -1884,7 +1917,7 @@ def _self_test() -> None:
         (root / "ubuntu" / "dists" / DEFAULT_SUITE / ".gitkeep").write_text("")
         (root / "_redirects").write_text(redirects)
         (root / "pacman").mkdir(exist_ok=True)
-        (root / "pacman" / "repo.conf").write_text(conf)
+        (root / "pacman" / PACMAN_CONF_NAME).write_text(conf)
         if (root / "ubuntu" / "pool" / "main").exists():
             raise SystemExit("must not materialise pool/main debs")
         _self_test_redirect_merge(root)
@@ -2094,8 +2127,8 @@ def _self_test_signing(root: Path) -> None:
     release_path.write_text("Origin: test\n", encoding="utf-8")
     db_dir = root / "pacman" / "x86_64"
     db_dir.mkdir(parents=True, exist_ok=True)
-    (db_dir / "repo.db").write_bytes(b"db")
-    (db_dir / "repo.db.tar.gz").write_bytes(b"db")
+    (db_dir / PACMAN_DB_NAME).write_bytes(b"db")
+    (db_dir / PACMAN_DB_TAR_NAME).write_bytes(b"db")
 
     env_key = root / "env.asc"
     env_key.write_text("ENV-SHOULD-NOT-WIN\n", encoding="utf-8")
@@ -2124,10 +2157,10 @@ def _self_test_signing(root: Path) -> None:
         raise SystemExit("APT InRelease was not signed")
     if not (release_path.parent / "Release.gpg").is_file():
         raise SystemExit("APT Release.gpg was not signed")
-    if not (db_dir / "repo.db.sig").is_file():
-        raise SystemExit("Pacman repo.db.sig was not signed")
-    if not (db_dir / "repo.db.tar.gz.sig").is_file():
-        raise SystemExit("Pacman repo.db.tar.gz.sig was not signed")
+    if not (db_dir / f"{PACMAN_DB_NAME}.sig").is_file():
+        raise SystemExit(f"Pacman {PACMAN_DB_NAME}.sig was not signed")
+    if not (db_dir / f"{PACMAN_DB_TAR_NAME}.sig").is_file():
+        raise SystemExit(f"Pacman {PACMAN_DB_TAR_NAME}.sig was not signed")
 
     os.environ["GPG_PRIVATE_KEY"] = priv.decode("utf-8")
     try:
